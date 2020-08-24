@@ -293,23 +293,25 @@ module apb_ucpd_bmc_filter (
       UI_sum  <= 12'b0;
       ave_cnt <= 3'b0;
     end
-    else if(training_en && cc_in_edg) begin
-      if(ave_cnt == 3'd7 ) begin
-        ave_cnt <= 3'b0;
-        UI_ave  <= UI_sum >> 3;
-        UI_sum  <= 12'b0;
-      end
-      else begin
-        ave_cnt <= ave_cnt + 1;
-        UI_sum  <= UI_sum + th_1UI;
+    else if(training_en) begin
+      if(cc_in_edg) begin
+        if(ave_cnt == 3'd7) begin
+          ave_cnt <= 3'b0;
+          UI_ave  <= UI_sum >> 3;
+          UI_sum  <= 12'b0;
+        end
+        else begin
+          ave_cnt <= ave_cnt + 1;
+          UI_sum  <= UI_sum + th_1UI;
+        end
       end
     end
-    else if(~training_en) begin
+    else begin
       UI_sum  <= 12'b0;
       ave_cnt <= 3'b0;
     end
-   if(~receive_en)
-      UI_ave  <= 11'b0;
+    // if(~receive_en)
+    //    UI_ave  <= 11'b0;
   end
 
   // wire [19:0] avg_th_1UI;

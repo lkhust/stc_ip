@@ -118,7 +118,7 @@ module apb_ucpd_data_tx (
   assign tx_hrst_edg = tx_hrst_r ^ tx_hrst;
 
   reg tx_crst_r;
-  always @(posedge ic_clk or posedge ic_rst_n) begin
+  always @(posedge ic_clk or negedge ic_rst_n) begin
     if(~ic_rst_n)
       tx_crst_r <= 1'b0;
     else
@@ -127,7 +127,7 @@ module apb_ucpd_data_tx (
   assign tx_crst_red = ~tx_crst_r & tx_crst;
 
   reg [1:0] tx_bist_r;
-  always @(posedge ic_clk or posedge ic_rst_n) begin
+  always @(posedge ic_clk or negedge ic_rst_n) begin
     if(~ic_rst_n)
       tx_bist_r <= 2'b0;
     else
