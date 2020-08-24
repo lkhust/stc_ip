@@ -1151,15 +1151,22 @@ module apb_ucpd_bmc_filter (
 
 
   always @(posedge ucpd_clk or negedge ic_rst_n) begin
+    if(~ic_rst_n)
+      UI_ave <= 11'b0;
+    else if(training_en && cc_in_edg && ave_cnt == 3'd7)
+      UI_ave <= UI_sum >> 3;
+    else if(~receive_en)
+      UI_ave <= 11'b0;
+  end
+
+  always @(posedge ucpd_clk or negedge ic_rst_n) begin
     if(~ic_rst_n) begin
-      UI_ave  <= 11'b0;
       UI_sum  <= 12'b0;
       ave_cnt <= 3'b0;
     end
     else if(training_en && cc_in_edg) begin
-      if(ave_cnt == 3'd7 ) begin
+      if(ave_cnt == 3'd7) begin
         ave_cnt <= 3'b0;
-        UI_ave  <= UI_sum >> 3;
         UI_sum  <= 12'b0;
       end
       else begin
@@ -1167,12 +1174,11 @@ module apb_ucpd_bmc_filter (
         UI_sum  <= UI_sum + th_1UI;
       end
     end
-    else if(~training_en) begin
+    else if(~rx_pre_en) begin
       UI_sum  <= 12'b0;
       ave_cnt <= 3'b0;
     end
-   if(~receive_en)
-      UI_ave  <= 11'b0;
+
   end
 
   // wire [19:0] avg_th_1UI;
@@ -2675,7 +2681,7 @@ module apb_ucpd_data_tx (
   assign tx_hrst_edg = tx_hrst_r ^ tx_hrst;
 
   reg tx_crst_r;
-  always @(posedge ic_clk or posedge ic_rst_n) begin
+  always @(posedge ic_clk or negedge ic_rst_n) begin
     if(~ic_rst_n)
       tx_crst_r <= 1'b0;
     else
@@ -2684,7 +2690,7 @@ module apb_ucpd_data_tx (
   assign tx_crst_red = ~tx_crst_r & tx_crst;
 
   reg [1:0] tx_bist_r;
-  always @(posedge ic_clk or posedge ic_rst_n) begin
+  always @(posedge ic_clk or negedge ic_rst_n) begin
     if(~ic_rst_n)
       tx_bist_r <= 2'b0;
     else

@@ -288,30 +288,34 @@ module apb_ucpd_bmc_filter (
 
 
   always @(posedge ucpd_clk or negedge ic_rst_n) begin
+    if(~ic_rst_n)
+      UI_ave <= 11'b0;
+    else if(training_en && cc_in_edg && ave_cnt == 3'd7)
+      UI_ave <= UI_sum >> 3;
+    else if(~receive_en)
+      UI_ave <= 11'b0;
+  end
+
+  always @(posedge ucpd_clk or negedge ic_rst_n) begin
     if(~ic_rst_n) begin
-      UI_ave  <= 11'b0;
       UI_sum  <= 12'b0;
       ave_cnt <= 3'b0;
     end
-    else if(training_en) begin
-      if(cc_in_edg) begin
-        if(ave_cnt == 3'd7) begin
-          ave_cnt <= 3'b0;
-          UI_ave  <= UI_sum >> 3;
-          UI_sum  <= 12'b0;
-        end
-        else begin
-          ave_cnt <= ave_cnt + 1;
-          UI_sum  <= UI_sum + th_1UI;
-        end
+    else if(training_en && cc_in_edg) begin
+      if(ave_cnt == 3'd7) begin
+        ave_cnt <= 3'b0;
+        UI_sum  <= 12'b0;
+      end
+      else begin
+        ave_cnt <= ave_cnt + 1;
+        UI_sum  <= UI_sum + th_1UI;
       end
     end
-    else begin
+    else if(~rx_pre_en) begin
       UI_sum  <= 12'b0;
       ave_cnt <= 3'b0;
     end
-    // if(~receive_en)
-    //    UI_ave  <= 11'b0;
+
   end
 
   // wire [19:0] avg_th_1UI;
