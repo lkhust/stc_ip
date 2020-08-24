@@ -1,0 +1,1054 @@
+# vsim +nospecify +notimingchecks -hazards -l sim.log -c -novopt top_tb
+# Loading F:\modeltech_10.1a\win32/novas.dll
+# Loading F:\modeltech_10.1a\win32\modelsim_pli54\WINNT\novas.dll
+# //  ModelSim SE 10.1a Feb 22 2012
+# //
+# //  Copyright 1991-2012 Mentor Graphics Corporation
+# //  All Rights Reserved.
+# //
+# //  THIS WORK CONTAINS TRADE SECRET AND PROPRIETARY INFORMATION
+# //  WHICH IS THE PROPERTY OF MENTOR GRAPHICS CORPORATION OR ITS
+# //  LICENSORS AND IS SUBJECT TO LICENSE TERMS.
+# //
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.top_tb
+# Loading work.top_tb
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.ahb2apb_m
+# Loading work.ahb2apb_m
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.cmsdk_ahb_to_apb
+# Loading work.cmsdk_ahb_to_apb
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.ahb2apb_s
+# Loading work.ahb2apb_s
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_top
+# Loading work.apb_ucpd_top
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_biu
+# Loading work.apb_ucpd_biu
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_if
+# Loading work.apb_ucpd_if
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_bcm21
+# Loading work.apb_ucpd_bcm21
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_core
+# Loading work.apb_ucpd_core
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_clk_gen
+# Loading work.apb_ucpd_clk_gen
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_clk_div
+# Loading work.apb_ucpd_clk_div
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_bmc_filter
+# Loading work.apb_ucpd_bmc_filter
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_bcm41
+# Loading work.apb_ucpd_bcm41
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_pcrc
+# Loading work.apb_ucpd_pcrc
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_data_tx
+# Loading work.apb_ucpd_data_tx
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_data_rx
+# Loading work.apb_ucpd_data_rx
+# Refreshing F:\proj\apb_ucpd_vtb\sim\work.apb_ucpd_fsm
+# Loading work.apb_ucpd_fsm
+# ** Warning: (vsim-3017) ../tb/ucpd_tb.v(185): [TFMPC] - Too few port connections. Expected 30, found 28.
+#
+#         Region: /top_tb/u_apb_ucpd_top_tx
+# ** Warning: (vsim-3722) ../tb/ucpd_tb.v(185): [TFMPC] - Missing connection for port 'cc1_compout'.
+#
+# ** Warning: (vsim-3722) ../tb/ucpd_tb.v(185): [TFMPC] - Missing connection for port 'cc2_compout'.
+#
+# ** Warning: (vsim-3017) ../tb/ucpd_tb.v(217): [TFMPC] - Too few port connections. Expected 30, found 28.
+#
+#         Region: /top_tb/u_apb_ucpd_top_rx
+# ** Warning: (vsim-3722) ../tb/ucpd_tb.v(217): [TFMPC] - Missing connection for port 'cc1_compout'.
+#
+# ** Warning: (vsim-3722) ../tb/ucpd_tb.v(217): [TFMPC] - Missing connection for port 'cc2_compout'.
+#
+# Debussy Release 5.3v9 (Win95/NT) ModelSim - 09/16/2003 compile
+# *Debussy* Create FSDB file './ucpd_top.fsdb'
+# *Debussy* Start dumping the top scope(top_tb), layer(0).
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_cfg_00x 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_cfg_00x 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk3 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk3 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk6 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk6 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_crc_rst_zeros 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_crc_rst_zeros 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk8 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk8 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk9 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk9 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_CRC_INI_ones 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_CRC_INI_ones 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_ORDER0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_ORDER0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk12 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk12 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk13 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk13 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk14 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk14 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_reg_ptrn 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_reg_ptrn 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk1 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.GEN_FST2.GEN_TST_MODE0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_bmc_filter.u_cc_in_icsyzr.U_SYNC.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_cfg_00x 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_cfg_00x 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk2 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk3 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk3 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk4 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk5 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk6 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk6 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_crc_rst_zeros 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_crc_rst_zeros 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk8 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk8 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk9 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk9 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_CRC_INI_ones 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_CRC_INI_ones 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_ORDER0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_ORDER0 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk12 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk12 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk13 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk13 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk14 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.genblk14 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_reg_ptrn 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Warning: Unknown scope type: top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_core.u_apb_ucpd_pcrc.GEN_reg_ptrn 716
+#     : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# ** Error: (vsim-PLI-3486) acc_fetch_defname(): The object_handle parameter is not a handle to a module, primitive, or architecture instance.    : ../tb/ucpd_tb.v(269)
+#    Time: 0 ns  Iteration: 0  Instance: /top_tb
+# *Debussy* End of dumping.
+# Information: *** Instance top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_tx_status_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# Information: *** Instance top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_rx_status_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# Information: *** Instance top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc1_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# Information: *** Instance top_tb.u_apb_ucpd_top_tx.u_apb_ucpd_if.u_vstate_cc2_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# Information: *** Instance top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_tx_status_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# Information: *** Instance top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_rx_status_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# Information: *** Instance top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc1_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# Information: *** Instance top_tb.u_apb_ucpd_top_rx.u_apb_ucpd_if.u_vstate_cc2_psyzr module is using the <Double Register Synchronizer (1)> Clock Domain Crossing Method ***
+# ***** enter TXIS: write txdr = 0x29, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0x1d, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0x38, and clear *****
+# ***** enter RXNE: read rxdr = f7, and clear *****
+# ***** enter TXIS: write txdr = 0x32, and clear *****
+# ***** enter RXNE: read rxdr = c3, and clear *****
+# ***** enter RXNE: read rxdr = 5a, and clear *****
+# ***** enter RXNE: read rxdr = 46, and clear *****
+# ***** enter RXNE: read rxdr = bf, and clear *****
+# ***** enter RXNE: read rxdr = ea, and clear *****
+# ***** enter RXNE: read rxdr = c2, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#               853126 INFO: check at addr 0 read: 0x55, write: 0x55
+#               853126 INFO: check completed without errors, ^_^
+#               853126 INFO: ===============================================================
+#               853126 INFO: check at addr 1 read: 0xf7, write: 0xf7
+#               853126 INFO: check completed without errors, ^_^
+#               853126 INFO: ===============================================================
+#               853126 INFO: check at addr 2 read: 0xc3, write: 0xc3
+#               853126 INFO: check completed without errors, ^_^
+#               853126 INFO: ===============================================================
+#               853126 INFO: check at addr 3 read: 0x5a, write: 0x5a
+#               853126 INFO: check completed without errors, ^_^
+#               853126 INFO: ===============================================================
+#               853126 INFO: check at addr 4 read: 0x46, write: 0x46
+#               853126 INFO: check completed without errors, ^_^
+#               853126 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = 10, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+# ***** enter TXIS: write txdr = 0xcb, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0x54, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0xa5, and clear *****
+# ***** enter RXNE: read rxdr = 98, and clear *****
+# ***** enter TXIS: write txdr = 0x87, and clear *****
+# ***** enter RXNE: read rxdr = 49, and clear *****
+# ***** enter RXNE: read rxdr = e2, and clear *****
+# ***** enter RXNE: read rxdr = d0, and clear *****
+# ***** enter RXNE: read rxdr = 1f, and clear *****
+# ***** enter RXNE: read rxdr = 64, and clear *****
+# ***** enter RXNE: read rxdr = df, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#              1733726 INFO: check at addr 0 read: 0x55, write: 0x55
+#              1733726 INFO: check completed without errors, ^_^
+#              1733726 INFO: ===============================================================
+#              1733726 INFO: check at addr 1 read: 0x98, write: 0x98
+#              1733726 INFO: check completed without errors, ^_^
+#              1733726 INFO: ===============================================================
+#              1733726 INFO: check at addr 2 read: 0x49, write: 0x49
+#              1733726 INFO: check completed without errors, ^_^
+#              1733726 INFO: ===============================================================
+#              1733726 INFO: check at addr 3 read: 0xe2, write: 0xe2
+#              1733726 INFO: check completed without errors, ^_^
+#              1733726 INFO: ===============================================================
+#              1733726 INFO: check at addr 4 read: 0xd0, write: 0xd0
+#              1733726 INFO: check completed without errors, ^_^
+#              1733726 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = 28, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+# ***** enter TXIS: write txdr = 0xf6, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0x39, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0x33, and clear *****
+# ***** enter RXNE: read rxdr = eb, and clear *****
+# ***** enter TXIS: write txdr = 0xf0, and clear *****
+# ***** enter RXNE: read rxdr = 6a, and clear *****
+# ***** enter RXNE: read rxdr = a8, and clear *****
+# ***** enter RXNE: read rxdr = 18, and clear *****
+# ***** enter RXNE: read rxdr = 2f, and clear *****
+# ***** enter RXNE: read rxdr = 84, and clear *****
+# ***** enter RXNE: read rxdr = 44, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#              2614326 INFO: check at addr 0 read: 0x55, write: 0x55
+#              2614326 INFO: check completed without errors, ^_^
+#              2614326 INFO: ===============================================================
+#              2614326 INFO: check at addr 1 read: 0xeb, write: 0xeb
+#              2614326 INFO: check completed without errors, ^_^
+#              2614326 INFO: ===============================================================
+#              2614326 INFO: check at addr 2 read: 0x6a, write: 0x6a
+#              2614326 INFO: check completed without errors, ^_^
+#              2614326 INFO: ===============================================================
+#              2614326 INFO: check at addr 3 read: 0xa8, write: 0xa8
+#              2614326 INFO: check completed without errors, ^_^
+#              2614326 INFO: ===============================================================
+#              2614326 INFO: check at addr 4 read: 0x18, write: 0x18
+#              2614326 INFO: check completed without errors, ^_^
+#              2614326 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = ad, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+# ***** enter TXIS: write txdr = 0xa, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0xfb, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0x8f, and clear *****
+# ***** enter RXNE: read rxdr = 90, and clear *****
+# ***** enter TXIS: write txdr = 0x26, and clear *****
+# ***** enter RXNE: read rxdr = f6, and clear *****
+# ***** enter RXNE: read rxdr = 9f, and clear *****
+# ***** enter RXNE: read rxdr = cc, and clear *****
+# ***** enter RXNE: read rxdr = e2, and clear *****
+# ***** enter RXNE: read rxdr = e6, and clear *****
+# ***** enter RXNE: read rxdr = ee, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#              3494926 INFO: check at addr 0 read: 0x55, write: 0x55
+#              3494926 INFO: check completed without errors, ^_^
+#              3494926 INFO: ===============================================================
+#              3494926 INFO: check at addr 1 read: 0x90, write: 0x90
+#              3494926 INFO: check completed without errors, ^_^
+#              3494926 INFO: ===============================================================
+#              3494926 INFO: check at addr 2 read: 0xf6, write: 0xf6
+#              3494926 INFO: check completed without errors, ^_^
+#              3494926 INFO: ===============================================================
+#              3494926 INFO: check at addr 3 read: 0x9f, write: 0x9f
+#              3494926 INFO: check completed without errors, ^_^
+#              3494926 INFO: ===============================================================
+#              3494926 INFO: check at addr 4 read: 0xcc, write: 0xcc
+#              3494926 INFO: check completed without errors, ^_^
+#              3494926 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = 5, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+# ***** enter TXIS: write txdr = 0x6f, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0x59, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0x4a, and clear *****
+# ***** enter RXNE: read rxdr = 18, and clear *****
+# ***** enter TXIS: write txdr = 0xab, and clear *****
+# ***** enter RXNE: read rxdr = 33, and clear *****
+# ***** enter RXNE: read rxdr = a3, and clear *****
+# ***** enter RXNE: read rxdr = a1, and clear *****
+# ***** enter RXNE: read rxdr = a4, and clear *****
+# ***** enter RXNE: read rxdr = b0, and clear *****
+# ***** enter RXNE: read rxdr = d3, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#              4375526 INFO: check at addr 0 read: 0x55, write: 0x55
+#              4375526 INFO: check completed without errors, ^_^
+#              4375526 INFO: ===============================================================
+#              4375526 INFO: check at addr 1 read: 0x18, write: 0x18
+#              4375526 INFO: check completed without errors, ^_^
+#              4375526 INFO: ===============================================================
+#              4375526 INFO: check at addr 2 read: 0x33, write: 0x33
+#              4375526 INFO: check completed without errors, ^_^
+#              4375526 INFO: ===============================================================
+#              4375526 INFO: check at addr 3 read: 0xa3, write: 0xa3
+#              4375526 INFO: check completed without errors, ^_^
+#              4375526 INFO: ===============================================================
+#              4375526 INFO: check at addr 4 read: 0xa1, write: 0xa1
+#              4375526 INFO: check completed without errors, ^_^
+#              4375526 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = a4, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+# ***** enter TXIS: write txdr = 0xc4, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0xc, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0x1d, and clear *****
+# ***** enter RXNE: read rxdr = 21, and clear *****
+# ***** enter TXIS: write txdr = 0x85, and clear *****
+# ***** enter RXNE: read rxdr = 21, and clear *****
+# ***** enter RXNE: read rxdr = 85, and clear *****
+# ***** enter RXNE: read rxdr = cc, and clear *****
+# ***** enter RXNE: read rxdr = f1, and clear *****
+# ***** enter RXNE: read rxdr = 81, and clear *****
+# ***** enter RXNE: read rxdr = 8f, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#              5256126 INFO: check at addr 0 read: 0x55, write: 0x55
+#              5256126 INFO: check completed without errors, ^_^
+#              5256126 INFO: ===============================================================
+#              5256126 INFO: check at addr 1 read: 0x21, write: 0x21
+#              5256126 INFO: check completed without errors, ^_^
+#              5256126 INFO: ===============================================================
+#              5256126 INFO: check at addr 2 read: 0x21, write: 0x21
+#              5256126 INFO: check completed without errors, ^_^
+#              5256126 INFO: ===============================================================
+#              5256126 INFO: check at addr 3 read: 0x85, write: 0x85
+#              5256126 INFO: check completed without errors, ^_^
+#              5256126 INFO: ===============================================================
+#              5256126 INFO: check at addr 4 read: 0xcc, write: 0xcc
+#              5256126 INFO: check completed without errors, ^_^
+#              5256126 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = da, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+# ***** enter TXIS: write txdr = 0xa1, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0xee, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0x1a, and clear *****
+# ***** enter RXNE: read rxdr = 8f, and clear *****
+# ***** enter TXIS: write txdr = 0x1a, and clear *****
+# ***** enter RXNE: read rxdr = f, and clear *****
+# ***** enter RXNE: read rxdr = 9a, and clear *****
+# ***** enter RXNE: read rxdr = 2a, and clear *****
+# ***** enter RXNE: read rxdr = f1, and clear *****
+# ***** enter RXNE: read rxdr = d4, and clear *****
+# ***** enter RXNE: read rxdr = 7f, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#              6136726 INFO: check at addr 0 read: 0x55, write: 0x55
+#              6136726 INFO: check completed without errors, ^_^
+#              6136726 INFO: ===============================================================
+#              6136726 INFO: check at addr 1 read: 0x8f, write: 0x8f
+#              6136726 INFO: check completed without errors, ^_^
+#              6136726 INFO: ===============================================================
+#              6136726 INFO: check at addr 2 read: 0xf, write: 0xf
+#              6136726 INFO: check completed without errors, ^_^
+#              6136726 INFO: ===============================================================
+#              6136726 INFO: check at addr 3 read: 0x9a, write: 0x9a
+#              6136726 INFO: check completed without errors, ^_^
+#              6136726 INFO: ===============================================================
+#              6136726 INFO: check at addr 4 read: 0x2a, write: 0x2a
+#              6136726 INFO: check completed without errors, ^_^
+#              6136726 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = ec, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+# ***** enter TXIS: write txdr = 0xd3, and clear *****
+# ***** enter RXORDDET: Rx ordered set detected interrupt, read rx_ordset = 0x0 *****
+# ***** enter TXIS: write txdr = 0xce, and clear *****
+# ***** enter RXNE: read rxdr = 55, and clear *****
+# ***** enter TXIS: write txdr = 0xbc, and clear *****
+# ***** enter RXNE: read rxdr = 4e, and clear *****
+# ***** enter TXIS: write txdr = 0x17, and clear *****
+# ***** enter RXNE: read rxdr = e1, and clear *****
+# ***** enter RXNE: read rxdr = 29, and clear *****
+# ***** enter RXNE: read rxdr = 74, and clear *****
+# ***** enter RXNE: read rxdr = f7, and clear *****
+# ***** enter RXNE: read rxdr = bf, and clear *****
+# ***** enter RXNE: read rxdr = 15, and clear *****
+# ***** enter TXMSGSENT: Transmit message sent interrupt, and clear *****
+#
+#              7017326 INFO: check at addr 0 read: 0x55, write: 0x55
+#              7017326 INFO: check completed without errors, ^_^
+#              7017326 INFO: ===============================================================
+#              7017326 INFO: check at addr 1 read: 0x4e, write: 0x4e
+#              7017326 INFO: check completed without errors, ^_^
+#              7017326 INFO: ===============================================================
+#              7017326 INFO: check at addr 2 read: 0xe1, write: 0xe1
+#              7017326 INFO: check completed without errors, ^_^
+#              7017326 INFO: ===============================================================
+#              7017326 INFO: check at addr 3 read: 0x29, write: 0x29
+#              7017326 INFO: check completed without errors, ^_^
+#              7017326 INFO: ===============================================================
+#              7017326 INFO: check at addr 4 read: 0x74, write: 0x74
+#              7017326 INFO: check completed without errors, ^_^
+#              7017326 INFO: ===============================================================
+# ***** enter RXNE: read rxdr = 68, and clear *****
+# ***** enter RXMSGEND:  Rx message received , read rx_paysz = 9 *****
+#
+#              8381326 INFO: Simulation is completed without errors, ^_^ ^_^
+# ** Note: $finish    : ../tb/ucpd_tb.v(263)
+#    Time: 8756326 ns  Iteration: 0  Instance: /top_tb
+
+https://github.com/lkhust/pd.git
