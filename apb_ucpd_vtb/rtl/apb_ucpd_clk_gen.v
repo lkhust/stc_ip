@@ -29,7 +29,6 @@ module apb_ucpd_clk_gen (
   output           hbit_clk_red    ,
   output           ucpd_clk_red    ,
   output           ucpd_clk        ,
-  output           bypass_prescaler,
   output reg       transwin_en     ,
   output reg       ifrgap_en
 );
@@ -48,7 +47,7 @@ module apb_ucpd_clk_gen (
   reg       bit_clk_r     ;
   reg       hbit_clk_r    ;
   reg       ucpd_clk_r    ;
-  reg       transmit_en_d;
+  reg       transmit_en_d ;
 
   //wires
   wire       hbit_clk_a       ; // half-bit clock
@@ -59,6 +58,7 @@ module apb_ucpd_clk_gen (
   wire [6:0] hbit_div         ;
   wire       bypass_hbitclkdiv;
   wire       transmit_en_edg  ;
+  wire       bypass_prescaler ;
 
   assign hbit_div          = hbitclkdiv+1;
   assign pre_scaler        = psc_usbpdclk;

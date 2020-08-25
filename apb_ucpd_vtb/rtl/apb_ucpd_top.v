@@ -53,8 +53,6 @@ module apb_ucpd_top (
   wire        txhrst_clr  ;
   wire        txsend_clr  ;
   wire        frs_evt     ;
-  wire [ 1:0] vstate_cc1  ;
-  wire [ 1:0] vstate_cc2  ;
   wire [ 6:0] tx_status   ;
   wire [ 5:0] rx_status   ;
   wire [ 6:0] rx_ordset   ;
@@ -70,8 +68,8 @@ module apb_ucpd_top (
   wire [ 7:0] ic_txdr     ;
   wire        ic_cc_out   ;
   wire [ 1:0] rxfilte     ;
-  wire transmit_en;
-  wire cc_oen;
+  wire        transmit_en ;
+  wire        cc_oen      ;
 
   assign cc_out      = ic_cc_out;
   assign cc_in       = phy_cc1_com ? cc1_datai : cc2_datai;
@@ -178,5 +176,5 @@ module apb_ucpd_top (
     .cc_oen      (cc_oen      )
   );
 
-
 endmodule
+

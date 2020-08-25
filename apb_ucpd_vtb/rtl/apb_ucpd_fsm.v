@@ -23,15 +23,9 @@ module apb_ucpd_fsm (
   input        eop_ok          ,
   input        bit_clk_red     ,
   input  [9:0] tx_paysize      , // tx Payload size in bytes, include head and TX_DATA
-  input        crc_ok          ,
-  input        rx_bit_cmplt    ,
-  input        pre_rxbit_edg   ,
-  input  [1:0] tx_mode         ,
   input  [6:0] tx_status       ,
   input        transwin_en     ,
   input        ifrgap_en       ,
-  input        tx_hrst_red     ,
-  input        tx_crst_red     ,
   input        rx_pre_cmplt    ,
   input        rx_sop_cmplt    ,
   input        hrst_vld        ,
@@ -143,7 +137,7 @@ module apb_ucpd_fsm (
   assign txfifo_ld_en     = tx_sop_cmplt || (data_en && tx_bit10_cmplt && ~tx_data_cmplt);
   assign txdr_req         = data_en && (txbyte_cnt < tx_paybit_size); // reqest in vaild time windows
 
-  assign cc_oen           = bmc_en & ucpden;
+  assign cc_oen           = bmc_en;
   assign trans_cmplt      = tx_pre_cmplt | tx_sop_cmplt | tx_data_cmplt | tx_crc_cmplt | tx_eop_cmplt;
   assign bmc_en           = pre_en| sop_en| data_en | crc_en | eop_en | wait_en;
   assign enc_txbit_en     = sop_en | data_en | crc_en | eop_en;
@@ -152,134 +146,138 @@ module apb_ucpd_fsm (
   // -- This combinational process calculates FSM the next state
   // -- and generate the outputs in ic_clk domain for tx data
   // ----------------------------------------------------------
-  always @ (posedge ic_clk or negedge ic_rst_n) begin
-    if (!ic_rst_n)
-      tx_cur_state <= TX_IDLE;
-    else if(hrst_sent)
-      tx_cur_state <= TX_IDLE;
-    else
-      tx_cur_state <= tx_nxt_state;
-  end
+  always @ (posedge ic_clk or negedge ic_rst_n)
+    begin
+      if (!ic_rst_n)
+        tx_cur_state <= TX_IDLE;
+      else if(!ucpden)
+        rx_cur_state <= TX_IDLE;
+      else
+        tx_cur_state <= tx_nxt_state;
+    end
 
-  always @(*) begin
-    tx_nxt_state = TX_IDLE;
-    case (tx_cur_state)
-      TX_IDLE :
-        begin
-          if(ucpden & transwin_en & (transmit_en | tx_hrst | hrst_tx_en))  // SW send TXSEND cmd
-            tx_nxt_state = TX_PRE;
-          else
-            tx_nxt_state = TX_IDLE;
-        end
-
-      TX_PRE :
-        begin
-          if(trans_cmplt) begin
-            tx_nxt_state = TX_SOP;
-          end
-          else
-            tx_nxt_state = TX_PRE;
-        end
-
-      TX_SOP :
-        begin
-          if(tx_hrst)
-            tx_nxt_state = TX_EOP;
-          else if(trans_cmplt) begin
-            if(tx_hrst_flag)
+  always @(*)
+    begin
+      tx_nxt_state = TX_IDLE;
+      case (tx_cur_state)
+        TX_IDLE :
+          begin
+            if(transwin_en & (transmit_en | tx_hrst | hrst_tx_en))  // SW send TXSEND cmd
+              tx_nxt_state = TX_PRE;
+            else
               tx_nxt_state = TX_IDLE;
-            else if(tx_crst_flag)
-              tx_nxt_state = TX_WAIT;
-            else if(bist_en)
-              tx_nxt_state = TX_BIST;
+          end
+
+        TX_PRE :
+          begin
+            if(trans_cmplt) begin
+              tx_nxt_state = TX_SOP;
+            end
+            else
+              tx_nxt_state = TX_PRE;
+          end
+
+        TX_SOP :
+          begin
+            if(tx_hrst)
+              tx_nxt_state = TX_EOP;
+            else if(trans_cmplt) begin
+              if(tx_hrst_flag)
+                tx_nxt_state = TX_IDLE;
+              else if(tx_crst_flag)
+                tx_nxt_state = TX_WAIT;
+              else if(bist_en)
+                tx_nxt_state = TX_BIST;
+              else
+                tx_nxt_state = TX_DATA;
+            end
+            else
+              tx_nxt_state = TX_SOP;
+          end
+
+        TX_DATA :
+          begin
+            if(tx_hrst | tx_und)
+              tx_nxt_state = TX_EOP;
+            else if(transmit_en) begin
+              if(trans_cmplt)
+                tx_nxt_state = TX_CRC;
+              else
+                tx_nxt_state = TX_DATA;
+            end
             else
               tx_nxt_state = TX_DATA;
           end
-          else
-            tx_nxt_state = TX_SOP;
-        end
 
-      TX_DATA :
-        begin
-          if(tx_hrst | tx_und)
-            tx_nxt_state = TX_EOP;
-          else if(transmit_en) begin
-            if(trans_cmplt)
+        TX_CRC :
+          begin
+            if(tx_hrst)
+              tx_nxt_state = TX_EOP;
+            else if(trans_cmplt)
+              tx_nxt_state = TX_EOP;
+            else
               tx_nxt_state = TX_CRC;
-             else
-              tx_nxt_state = TX_DATA;
           end
-          else
-            tx_nxt_state = TX_DATA;
-        end
 
-      TX_CRC :
-        begin
-          if(tx_hrst)
-            tx_nxt_state = TX_EOP;
-          else if(trans_cmplt)
-            tx_nxt_state = TX_EOP;
-          else
-            tx_nxt_state = TX_CRC;
-        end
+        TX_EOP :
+          begin
+            if(tx_hrst)
+              tx_nxt_state = TX_EOP;
+            else if(trans_cmplt)
+              tx_nxt_state = TX_WAIT;
+            else
+              tx_nxt_state = TX_EOP;
+          end
 
-      TX_EOP :
-        begin
-          if(tx_hrst)
-            tx_nxt_state = TX_EOP;
-          else if(trans_cmplt)
-            tx_nxt_state = TX_WAIT;
-          else
-            tx_nxt_state = TX_EOP;
-        end
+        TX_BIST :
+          begin
+            if(tx_hrst)
+              tx_nxt_state = TX_IDLE;
+            else if(trans_cmplt) // TX_BIST finish
+              tx_nxt_state = TX_IDLE;
+            else
+              tx_nxt_state = TX_BIST;
+          end
 
-      TX_BIST :
-        begin
-          if(tx_hrst)
-            tx_nxt_state = TX_IDLE;
-          else if(trans_cmplt) // TX_BIST finish
-            tx_nxt_state = TX_IDLE;
-          else
-            tx_nxt_state = TX_BIST;
-        end
+        TX_WAIT :
+          begin
+            if(ifrgap_en)
+              tx_nxt_state = TX_IDLE;
+            else
+              tx_nxt_state = TX_WAIT;
+          end
 
-      TX_WAIT :
-        begin
-          if(ifrgap_en)
-            tx_nxt_state = TX_IDLE;
-          else
-            tx_nxt_state = TX_WAIT;
-        end
-
-      default : ;
-    endcase
-  end
+        default : ;
+      endcase
+    end
 
   /*------------------------------------------------------------------------------
   --  count totole tx bit, according in each fsm stage
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      txbit_cnt <= 16'b0;
-    else if(trans_cmplt)
-      txbit_cnt <= 16'b0;
-    else if(bmc_en & bit_clk_red)
-      txbit_cnt <= txbit_cnt+1;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        txbit_cnt <= 16'b0;
+      else if(trans_cmplt)
+        txbit_cnt <= 16'b0;
+      else if(bmc_en & bit_clk_red)
+        txbit_cnt <= txbit_cnt+1;
+    end
 
   /*------------------------------------------------------------------------------
   --  count totole tx byte need 10 bits, according in data_en
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      one_data_txbit_cnt <= 4'b0;
-    else if(data_en & bit_clk_red) begin
-      if(one_data_txbit_cnt == `TX_BIT10_NUM)
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
         one_data_txbit_cnt <= 4'b0;
-      else
-        one_data_txbit_cnt <= one_data_txbit_cnt+1;
+      else if(data_en & bit_clk_red) begin
+        if(one_data_txbit_cnt == `TX_BIT10_NUM)
+          one_data_txbit_cnt <= 4'b0;
+        else
+          one_data_txbit_cnt <= one_data_txbit_cnt+1;
+      end
     end
-  end
 
   /*------------------------------------------------------------------------------
   --  count totole tx byte, according in data_en
@@ -299,54 +297,59 @@ module apb_ucpd_fsm (
   // -- This combinational process calculates FSM the next state
   // -- and generate the outputs in ucpd_clk domain for rx data
   // ----------------------------------------------------------
-  always @ (posedge ucpd_clk or negedge ic_rst_n) begin
-    if (!ic_rst_n)
-      rx_cur_state <= RX_IDLE;
-    else
-      rx_cur_state <= rx_nxt_state;
-  end
+  always @ (posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if (!ic_rst_n)
+        rx_cur_state <= RX_IDLE;
+      else if(!ucpden)
+        rx_cur_state <= RX_IDLE;
+      else
+        rx_cur_state <= rx_nxt_state;
+    end
 
-  always @(*) begin
-    rx_nxt_state = RX_IDLE;
-    case (rx_cur_state)
-      RX_IDLE :
-        begin
-          if(ucpden & receive_en)
-            rx_nxt_state = RX_PRE;
-          else
-            rx_nxt_state = RX_IDLE;
-        end
+  always @(*)
+    begin
+      rx_nxt_state = RX_IDLE;
+      case (rx_cur_state)
+        RX_IDLE :
+          begin
+            if(receive_en)
+              rx_nxt_state = RX_PRE;
+            else
+              rx_nxt_state = RX_IDLE;
+          end
 
-      RX_PRE :
-        begin
-          if(rx_pre_cmplt)
-            rx_nxt_state = RX_SOP;
-          else
-            rx_nxt_state = RX_PRE;
-        end
+        RX_PRE :
+          begin
+            if(rx_pre_cmplt)
+              rx_nxt_state = RX_SOP;
+            else
+              rx_nxt_state = RX_PRE;
+          end
 
-      RX_SOP :
-        begin
-          if(eop_ok)
-            rx_nxt_state = RX_IDLE;
-          else if(rx_sop_cmplt)
-            rx_nxt_state = RX_DATA;
-          else
-            rx_nxt_state = RX_SOP;
-        end
+        RX_SOP :
+          begin
+            if(eop_ok)
+              rx_nxt_state = RX_IDLE;
+            else if(rx_sop_cmplt)
+              rx_nxt_state = RX_DATA;
+            else
+              rx_nxt_state = RX_SOP;
+          end
 
-      RX_DATA :
-        begin
-          if(eop_ok | hrst_vld | crst_vld )
-            rx_nxt_state = RX_IDLE;
-          else
-            rx_nxt_state = RX_DATA;
-        end
+        RX_DATA :
+          begin
+            if(eop_ok | hrst_vld | crst_vld )
+              rx_nxt_state = RX_IDLE;
+            else
+              rx_nxt_state = RX_DATA;
+          end
 
-      default : ;
+        default : ;
 
-    endcase
-  end
-
+      endcase
+    end
 
 endmodule
+
+

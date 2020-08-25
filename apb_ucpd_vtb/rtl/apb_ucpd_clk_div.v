@@ -51,3 +51,5 @@ module apb_ucpd_clk_div (
   assign clk_out = (odd) ? (clk_p | clk_n) : clk_even;
 
 endmodule
+
+

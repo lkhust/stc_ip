@@ -60,7 +60,6 @@ module apb_ucpd_core (
   wire        tx_hrst_red     ;
   wire        tx_crst_red     ;
   wire        tx_bit          ;
-  wire        hard_rst        ;
   wire        rx_bit_cmplt    ;
   wire        decode_bmc      ;
   wire        crc_ok          ;
@@ -75,8 +74,6 @@ module apb_ucpd_core (
   wire        rx_sop_cmplt    ;
   wire        init_n          ;
   wire        enable          ;
-  wire        bypass_prescaler;
-  wire        pre_rxbit_edg   ;
   wire        rx_pre_cmplt    ;
   wire        tx_wait_cmplt   ;
   wire        tx_sop_rst_cmplt;
@@ -85,6 +82,9 @@ module apb_ucpd_core (
   wire        rx_pre_en       ;
   wire        tx_eop_cmplt    ;
   wire        hrst_tx_en      ;
+  wire        tx_data_cmplt   ;
+  wire        rx_sop_en       ;
+  wire        rx_data_en      ;
 
   assign ic_cc_in  = cc_in;
   assign data_in   = receive_en ? rx_byte : ic_txdr;
@@ -108,40 +108,33 @@ module apb_ucpd_core (
     .hbit_clk_red    (hbit_clk_red    ),
     .ucpd_clk_red    (ucpd_clk_red    ),
     .ucpd_clk        (ucpd_clk        ),
-    .bypass_prescaler(bypass_prescaler),
     .transwin_en     (transwin_en     ),
     .ifrgap_en       (ifrgap_en       )
   );
 
   apb_ucpd_bmc_filter u_apb_ucpd_bmc_filter (
-    .ic_clk          (ic_clk          ),
-    .ic_rst_n        (ic_rst_n        ),
-    .ucpden          (ucpden          ),
-    .ic_cc_in        (ic_cc_in        ),
-    .bit_clk_red     (bit_clk_red     ),
-    .hbit_clk_red    (hbit_clk_red    ),
-    .ucpd_clk        (ucpd_clk_red    ),
-    .ucpd_clk_red    (ucpd_clk_red    ),
-    .bypass_prescaler(bypass_prescaler),
-    .rxfilte         (rxfilte         ),
-    .hrst_vld        (hrst_vld        ),
-    .crst_vld        (crst_vld        ),
-    .rx_pre_en       (rx_pre_en       ),
-    .rx_sop_en       (rx_sop_en       ),
-    .rx_data_en      (rx_data_en      ),
-    .tx_eop_cmplt    (tx_eop_cmplt    ),
-    .eop_ok          (eop_ok          ),
-    .pre_en          (pre_en          ),
-    .sop_en          (sop_en          ),
-    .bmc_en          (bmc_en          ),
-    .dec_rxbit_en    (dec_rxbit_en    ),
-    .tx_bit          (tx_bit          ),
-    .decode_bmc      (decode_bmc      ),
-    .ic_cc_out       (ic_cc_out       ),
-    .rx_bit_cmplt    (rx_bit_cmplt    ),
-    .rx_pre_cmplt    (rx_pre_cmplt    ),
-    .rx_bit5_cmplt   (rx_bit5_cmplt   ),
-    .receive_en      (receive_en      )
+    .ic_clk       (ic_clk       ),
+    .ic_rst_n     (ic_rst_n     ),
+    .ic_cc_in     (ic_cc_in     ),
+    .bit_clk_red  (bit_clk_red  ),
+    .hbit_clk_red (hbit_clk_red ),
+    .ucpd_clk     (ucpd_clk     ),
+    .rxfilte      (rxfilte      ),
+    .hrst_vld     (hrst_vld     ),
+    .crst_vld     (crst_vld     ),
+    .rx_pre_en    (rx_pre_en    ),
+    .rx_sop_en    (rx_sop_en    ),
+    .rx_data_en   (rx_data_en   ),
+    .eop_ok       (eop_ok       ),
+    .bmc_en       (bmc_en       ),
+    .dec_rxbit_en (dec_rxbit_en ),
+    .tx_bit       (tx_bit       ),
+    .decode_bmc   (decode_bmc   ),
+    .ic_cc_out    (ic_cc_out    ),
+    .rx_bit_cmplt (rx_bit_cmplt ),
+    .rx_pre_cmplt (rx_pre_cmplt ),
+    .rx_bit5_cmplt(rx_bit5_cmplt),
+    .receive_en   (receive_en   )
   );
 
   apb_ucpd_pcrc u_apb_ucpd_pcrc (
@@ -171,19 +164,12 @@ module apb_ucpd_core (
     .tx_wait_cmplt(tx_wait_cmplt),
     .tx_data_cmplt(tx_data_cmplt),
     .tx_eop_cmplt (tx_eop_cmplt ),
-    .tx_hrst_flag (tx_hrst_flag ),
-    .tx_crst_flag (tx_crst_flag ),
-    .txhrst_clr   (txhrst_clr   ),
-    .txsend_clr   (txsend_clr   ),
-    .hrst_tx_en   (hrst_tx_en   ),
     .txdr_req     (txdr_req     ),
     .pre_en       (pre_en       ),
-    .bmc_en       (bmc_en       ),
     .sop_en       (sop_en       ),
     .data_en      (data_en      ),
     .crc_en       (crc_en       ),
     .eop_en       (eop_en       ),
-    .bist_en      (bist_en      ),
     .tx_ordset_we (tx_ordset_we ),
     .txfifo_ld_en (txfifo_ld_en ),
     .txdr_we      (txdr_we      ),
@@ -191,19 +177,23 @@ module apb_ucpd_core (
     .tx_msg_disc  (tx_msg_disc  ),
     .tx_hrst_disc (tx_hrst_disc ),
     .ic_txdr      (ic_txdr      ),
-    .crc_in       (crc_tx_in    ),
+    .crc_in       (crc_in       ),
     .tx_ordset    (tx_ordset    ),
     .tx_status    (tx_status    ),
     .tx_hrst_red  (tx_hrst_red  ),
     .tx_crst_red  (tx_crst_red  ),
+    .tx_hrst_flag (tx_hrst_flag ),
+    .tx_crst_flag (tx_crst_flag ),
+    .txhrst_clr   (txhrst_clr   ),
+    .txsend_clr   (txsend_clr   ),
+    .hrst_tx_en   (hrst_tx_en   ),
     .tx_bit       (tx_bit       )
   );
 
   apb_ucpd_data_rx u_apb_ucpd_data_rx (
     .ic_clk       (ic_clk       ),
-    .ucpd_clk     (ucpd_clk     ),
+    .ucpd_clk     (ucpd_clk_red ),
     .ic_rst_n     (ic_rst_n     ),
-    .hard_rst     (hard_rst     ),
     .rx_bit5_cmplt(rx_bit5_cmplt),
     .rx_bit_cmplt (rx_bit_cmplt ),
     .rx_pre_en    (rx_pre_en    ),
@@ -214,10 +204,10 @@ module apb_ucpd_core (
     .crc_ok       (crc_ok       ),
     .dec_rxbit_en (dec_rxbit_en ),
     .rx_ordset_en (rx_ordset_en ),
+    .rx_sop_cmplt (rx_sop_cmplt ),
     .rx_status    (rx_status    ),
     .rx_ordset    (rx_ordset    ),
     .rxfifo_wr_en (rxfifo_wr_en ),
-    .rx_sop_cmplt (rx_sop_cmplt ),
     .rx_byte_cnt  (rx_byte_cnt  ),
     .hrst_vld     (hrst_vld     ),
     .crst_vld     (crst_vld     ),
@@ -227,7 +217,7 @@ module apb_ucpd_core (
 
   apb_ucpd_fsm u_apb_ucpd_fsm (
     .ic_clk          (ic_clk          ),
-    .ucpd_clk        (ucpd_clk        ),
+    .ucpd_clk        (ucpd_clk_red    ),
     .ic_rst_n        (ic_rst_n        ),
     .ucpden          (ucpden          ),
     .tx_hrst         (tx_hrst         ),
@@ -236,17 +226,11 @@ module apb_ucpd_core (
     .eop_ok          (eop_ok          ),
     .bit_clk_red     (bit_clk_red     ),
     .tx_paysize      (tx_paysize      ),
-    .crc_ok          (crc_ok          ),
-    .rx_bit_cmplt    (rx_bit_cmplt    ),
-    .rx_sop_cmplt    (rx_sop_cmplt    ),
-    .pre_rxbit_edg   (pre_rxbit_edg   ),
-    .tx_mode         (tx_mode         ),
     .tx_status       (tx_status       ),
     .transwin_en     (transwin_en     ),
     .ifrgap_en       (ifrgap_en       ),
-    .tx_hrst_red     (tx_hrst_red     ),
-    .tx_crst_red     (tx_crst_red     ),
     .rx_pre_cmplt    (rx_pre_cmplt    ),
+    .rx_sop_cmplt    (rx_sop_cmplt    ),
     .hrst_vld        (hrst_vld        ),
     .crst_vld        (crst_vld        ),
     .tx_hrst_flag    (tx_hrst_flag    ),
@@ -277,5 +261,5 @@ module apb_ucpd_core (
     .bist_en         (bist_en         )
   );
 
-
 endmodule
+

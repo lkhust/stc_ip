@@ -1,32 +1,26 @@
 
 module apb_ucpd_bmc_filter (
-  input            ic_clk          , // peripherial clock
-  input            ic_rst_n        , // ic reset signal active low
-  input            ucpden          ,
-  input            ic_cc_in        , // Input CC rxd signal
-  input            bit_clk_red     ,
-  input            hbit_clk_red    ,
-  input            ucpd_clk        ,
-  input            ucpd_clk_red    ,
-  input            bypass_prescaler,
-  input      [1:0] rxfilte         ,
-  input            hrst_vld        ,
-  input            crst_vld        ,
-  input            rx_pre_en       ,
-  input            rx_sop_en       ,
-  input            rx_data_en      ,
-  input            tx_eop_cmplt,
-  input            eop_ok          ,
-  input            pre_en          ,
-  input            sop_en          ,
-  input            bmc_en          ,
-  input            dec_rxbit_en    ,
-  input            tx_bit          ,
-  output reg       decode_bmc      , // decode input cc bmc
-  output           ic_cc_out       ,
-  output           rx_bit_cmplt    ,
-  output           rx_pre_cmplt    ,
-  output           rx_bit5_cmplt   ,
+  input            ic_clk       , // peripherial clock
+  input            ic_rst_n     , // ic reset signal active low
+  input            ic_cc_in     , // Input CC rxd signal
+  input            bit_clk_red  ,
+  input            hbit_clk_red ,
+  input            ucpd_clk     ,
+  input      [1:0] rxfilte      ,
+  input            hrst_vld     ,
+  input            crst_vld     ,
+  input            rx_pre_en    ,
+  input            rx_sop_en    ,
+  input            rx_data_en   ,
+  input            eop_ok       ,
+  input            bmc_en       ,
+  input            dec_rxbit_en ,
+  input            tx_bit       ,
+  output reg       decode_bmc   , // decode input cc bmc
+  output           ic_cc_out    ,
+  output           rx_bit_cmplt ,
+  output           rx_pre_cmplt ,
+  output           rx_bit5_cmplt,
   output reg       receive_en
 );
   // `include "parameter_def.v"
@@ -34,33 +28,33 @@ module apb_ucpd_bmc_filter (
   // -- local registers and wires
   // ----------------------------------------------------------
   //regs
-  reg        cc_data_int     ;
-  reg        training_en     ;
-  reg [ 1:0] simple_cnt      ;
-  reg [10:0] UI_cntA         ;
-  reg [10:0] UI_cntB         ;
-  reg [10:0] UI_cntC         ;
-  reg [10:0] th_1UI          ;
-  reg        rx_bmc          ;
-  reg [10:0] data_cnt        ;
-  reg        data1_flag      ;
-  reg        tx_bmc          ;
-  reg [ 10:0] pre_rxbit_cnt   ;
-  reg        cc_in_d         ;
-  reg        cc_data_int_nxt ;
-  reg [10:0] UI_ave          ;
-  reg [11:0] UI_sum          ;
-  reg [ 2:0] ave_cnt         ;
-  reg [10:0] rx_pre_hbit_cnt ;
-  reg [10:0] rx_pre_lbit_cnt ;
-  reg [10:0] rx_pre_hbit_time;
-  reg [10:0] rx_pre_lbit_time;
-  reg [10:0] rx_hbit_cnt     ;
-  reg [10:0] rx_lbit_cnt     ;
-  reg [ 2:0] rxbit_cnt       ;
-  reg        cc_in_vld       ;
-  reg [10:0] UI_H_cnt        ;
-  reg [10:0] UI_L_cnt        ;
+  reg         cc_data_int     ;
+  reg         training_en     ;
+  reg [ 1:0]  simple_cnt      ;
+  reg [10:0]  UI_cntA         ;
+  reg [10:0]  UI_cntB         ;
+  reg [10:0]  UI_cntC         ;
+  reg [10:0]  th_1UI          ;
+  reg         rx_bmc          ;
+  reg [10:0]  data_cnt        ;
+  reg         data1_flag      ;
+  reg         tx_bmc          ;
+  reg [10:0]  pre_rxbit_cnt   ;
+  reg         cc_in_d         ;
+  reg         cc_data_int_nxt ;
+  reg [10:0]  UI_ave          ;
+  reg [11:0]  UI_sum          ;
+  reg [ 2:0]  ave_cnt         ;
+  reg [10:0]  rx_pre_hbit_cnt ;
+  reg [10:0]  rx_pre_lbit_cnt ;
+  reg [10:0]  rx_pre_hbit_time;
+  reg [10:0]  rx_pre_lbit_time;
+  reg [10:0]  rx_hbit_cnt     ;
+  reg [10:0]  rx_lbit_cnt     ;
+  reg [ 2:0]  rxbit_cnt       ;
+  reg         cc_in_vld       ;
+  reg [10:0]  UI_H_cnt        ;
+  reg [10:0]  UI_L_cnt        ;
 
   //wires
   wire cc_in_edg     ;
@@ -83,10 +77,9 @@ module apb_ucpd_bmc_filter (
   assign rx_bit5_cmplt = rx_bit_cmplt && (rxbit_cnt == `RX_BIT5_NUM);
 
   // assign decode_bmc   = rx_bmc;
-  assign ic_cc_out    = tx_bmc & ucpden;
+  assign ic_cc_out    = tx_bmc;
   assign rxfilt_2n3   = rxfilte[1];
   assign rxfilt_dis   = rxfilte[0];
-
 
   /*------------------------------------------------------------------------------
   --  ic_cc_in synchronization to ucpd_clk
@@ -95,7 +88,7 @@ module apb_ucpd_bmc_filter (
   wire asyn_cc_in_a;
   wire asyn_cc_sync;
 
-  assign asyn_cc_in_a = ic_cc_in & ucpden;
+  assign asyn_cc_in_a = ic_cc_in;
   assign cc_in_sync_nxt   = asyn_cc_sync;
   apb_ucpd_bcm41 #(.RST_VAL(1), .VERIF_EN(0)) u_cc_in_icsyzr (
     .clk_d   (ucpd_clk    ),
@@ -113,49 +106,52 @@ module apb_ucpd_bmc_filter (
   reg cc_in_sync_d0;
   reg cc_in_sync_d1;
 
-  always @(*) begin
-    cc_in_ored = {cc_in_sync,cc_in_sync_d0,cc_in_sync_d1};
-    if(rxfilt_2n3) // Wait for 2 consistent samples before considering it to be a new level
-      case(cc_in_ored[2:1])
-        2'b00 : cc_data_int_nxt = 1'b0;
-        2'b01 : cc_data_int_nxt = 1'b0;
-        2'b10 : cc_data_int_nxt = 1'b0;
-        2'b11 : cc_data_int_nxt = 1'b1;
-      endcase
-    else
-      case(cc_in_ored)
-        3'b000 : cc_data_int_nxt = 1'b0;
-        3'b001 : cc_data_int_nxt = 1'b0;
-        3'b010 : cc_data_int_nxt = 1'b0;
-        3'b011 : cc_data_int_nxt = 1'b0;
-        3'b100 : cc_data_int_nxt = 1'b0;
-        3'b101 : cc_data_int_nxt = 1'b0;
-        3'b110 : cc_data_int_nxt = 1'b0;
-        3'b111 : cc_data_int_nxt = 1'b1;
-      endcase
-  end
+  always @(*)
+    begin
+      cc_in_ored = {cc_in_sync,cc_in_sync_d0,cc_in_sync_d1};
+      if(rxfilt_2n3) // Wait for 2 consistent samples before considering it to be a new level
+        case(cc_in_ored[2:1])
+          2'b00 : cc_data_int_nxt = 1'b0;
+          2'b01 : cc_data_int_nxt = 1'b0;
+          2'b10 : cc_data_int_nxt = 1'b0;
+          2'b11 : cc_data_int_nxt = 1'b1;
+        endcase
+      else
+        case(cc_in_ored)
+          3'b000 : cc_data_int_nxt = 1'b0;
+          3'b001 : cc_data_int_nxt = 1'b0;
+          3'b010 : cc_data_int_nxt = 1'b0;
+          3'b011 : cc_data_int_nxt = 1'b0;
+          3'b100 : cc_data_int_nxt = 1'b0;
+          3'b101 : cc_data_int_nxt = 1'b0;
+          3'b110 : cc_data_int_nxt = 1'b0;
+          3'b111 : cc_data_int_nxt = 1'b1;
+        endcase
+    end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(ic_rst_n == 1'b0) begin
-      cc_data_int <= 1'b0;
-      cc_in_sync <= 1'b0;
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(ic_rst_n == 1'b0) begin
+        cc_data_int <= 1'b0;
+        cc_in_sync  <= 1'b0;
+      end
+      else begin
+        cc_data_int <= cc_data_int_nxt;
+        cc_in_sync  <= cc_in_sync_nxt;
+      end
     end
-    else begin
-      cc_data_int <= cc_data_int_nxt;
-      cc_in_sync <= cc_in_sync_nxt;
-    end
-  end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(ic_rst_n == 1'b0) begin
-      cc_in_sync_d0 <= 1'b0;
-      cc_in_sync_d1 <= 1'b0;
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(ic_rst_n == 1'b0) begin
+        cc_in_sync_d0 <= 1'b0;
+        cc_in_sync_d1 <= 1'b0;
+      end
+      else begin
+        cc_in_sync_d0 <= cc_in_sync;
+        cc_in_sync_d1 <= cc_in_sync_d0;
+      end
     end
-    else begin
-      cc_in_sync_d0 <= cc_in_sync;
-      cc_in_sync_d1 <= cc_in_sync_d0;
-    end
-  end
 
   /*------------------------------------------------------------------------------
   --  generator Biphase Mark Coding (BMC) Signaling
@@ -167,156 +163,166 @@ module apb_ucpd_bmc_filter (
   /*------------------------------------------------------------------------------
   --  bmc encode
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_bmc <= 1'b0;
-    else if(bmc_en) begin
-      if(tx_bit) begin
-        if(hbit_clk_red)
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_bmc <= 1'b0;
+      else if(bmc_en) begin
+        if(tx_bit) begin
+          if(hbit_clk_red)
+            tx_bmc <= ~tx_bmc;
+        end
+        else if(bit_clk_red)
           tx_bmc <= ~tx_bmc;
       end
-      else if(bit_clk_red)
-        tx_bmc <= ~tx_bmc;
+      else
+        tx_bmc <= 1'b0;
     end
-    else
-      tx_bmc <= 1'b0;
-  end
 
   /*------------------------------------------------------------------------------
   --  bmc decode
   ------------------------------------------------------------------------------*/
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      cc_in_d <= 1'b0;
-    else
-      cc_in_d <= cc_int_nxt; // for generate edg
-  end
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        cc_in_d <= 1'b0;
+      else
+        cc_in_d <= cc_int_nxt; // for generate edg
+    end
   assign cc_in_edg = cc_in_d ^ cc_int_nxt;
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      cc_in_vld <= 1'b0;
-    else if(rx_sop_en | rx_data_en)
-      cc_in_vld <= 1'b0;
-    else if(cc_in_edg)
-      cc_in_vld <= 1'b1;
-  end
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        cc_in_vld <= 1'b0;
+      else if(rx_sop_en | rx_data_en)
+        cc_in_vld <= 1'b0;
+      else if(cc_in_edg)
+        cc_in_vld <= 1'b1;
+    end
 
   // begin preamble use 2 bit to count edge, get 3 counter
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      UI_H_cnt <= 11'b0;
-    else if(dec_rxbit_en) begin
-      UI_H_cnt <= 11'b0;
-    end
-    else if(cc_in_vld) begin
-      if(cc_int)
-        UI_H_cnt <= UI_H_cnt+1;
-      else
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
         UI_H_cnt <= 11'b0;
+      else if(dec_rxbit_en) begin
+        UI_H_cnt <= 11'b0;
+      end
+      else if(cc_in_vld) begin
+        if(cc_int)
+          UI_H_cnt <= UI_H_cnt+1;
+        else
+          UI_H_cnt <= 11'b0;
+      end
     end
-  end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      UI_L_cnt <= 11'b0;
-    else if(dec_rxbit_en) begin
-      UI_L_cnt <= 11'b0;
-    end
-    else if(cc_in_vld) begin
-      if(~cc_int)
-        UI_L_cnt <= UI_L_cnt+1;
-      else
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
         UI_L_cnt <= 11'b0;
+      else if(dec_rxbit_en) begin
+        UI_L_cnt <= 11'b0;
+      end
+      else if(cc_in_vld) begin
+        if(~cc_int)
+          UI_L_cnt <= UI_L_cnt+1;
+        else
+          UI_L_cnt <= 11'b0;
+      end
     end
-  end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      simple_cnt     <= 2'b0;
-      first_2bit_end <= 1'b0;
-    end
-    else if(dec_rxbit_en) begin
-      simple_cnt     <= 2'b0;
-      first_2bit_end <= 1'b0;
-    end
-    else if(cc_in_vld && cc_in_edg) begin
-      if(simple_cnt == 2'd2) begin
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
         simple_cnt     <= 2'b0;
-        first_2bit_end <= 1'b1;
+        first_2bit_end <= 1'b0;
       end
-      else
-        simple_cnt <= simple_cnt+1;
-    end
-  end
-
-
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      UI_cntA <= 11'b0;
-      UI_cntB <= 11'b0;
-      UI_cntC <= 11'b0;
-    end
-    else if(dec_rxbit_en) begin
-      UI_cntA <= 11'b0;
-      UI_cntB <= 11'b0;
-      UI_cntC <= 11'b0;
-    end
-    else if(cc_in_vld && cc_in_edg) begin
-      case(simple_cnt)
-        2'd0 : begin
-          if(cc_int)
-            UI_cntA <= UI_H_cnt;
-          else
-            UI_cntA <= UI_L_cnt;
+      else if(dec_rxbit_en) begin
+        simple_cnt     <= 2'b0;
+        first_2bit_end <= 1'b0;
+      end
+      else if(cc_in_vld && cc_in_edg) begin
+        if(simple_cnt == 2'd2) begin
+          simple_cnt     <= 2'b0;
+          first_2bit_end <= 1'b1;
         end
-        2'd1 : begin
-          if(cc_int)
-            UI_cntB <= UI_H_cnt;
-          else
-            UI_cntB <= UI_L_cnt;
-        end
-        2'd2 : begin
-          if(cc_int)
-            UI_cntC <= UI_H_cnt;
-          else
-            UI_cntC <= UI_L_cnt;
-        end
-      endcase
+        else
+          simple_cnt <= simple_cnt+1;
+      end
     end
-  end
 
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      UI_ave <= 11'b0;
-    else if(training_en && cc_in_edg && ave_cnt == 3'd7)
-      UI_ave <= UI_sum >> 3;
-    else if(~receive_en)
-      UI_ave <= 11'b0;
-  end
-
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      UI_sum  <= 12'b0;
-      ave_cnt <= 3'b0;
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
+        UI_cntA <= 11'b0;
+        UI_cntB <= 11'b0;
+        UI_cntC <= 11'b0;
+      end
+      else if(dec_rxbit_en) begin
+        UI_cntA <= 11'b0;
+        UI_cntB <= 11'b0;
+        UI_cntC <= 11'b0;
+      end
+      else if(cc_in_vld && cc_in_edg) begin
+        case(simple_cnt)
+          2'd0 :
+            begin
+              if(cc_int)
+                UI_cntA <= UI_H_cnt;
+              else
+                UI_cntA <= UI_L_cnt;
+            end
+          2'd1 :
+            begin
+              if(cc_int)
+                UI_cntB <= UI_H_cnt;
+              else
+                UI_cntB <= UI_L_cnt;
+            end
+          2'd2 :
+            begin
+              if(cc_int)
+                UI_cntC <= UI_H_cnt;
+              else
+                UI_cntC <= UI_L_cnt;
+            end
+        endcase
+      end
     end
-    else if(training_en && cc_in_edg) begin
-      if(ave_cnt == 3'd7) begin
-        ave_cnt <= 3'b0;
+
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        UI_ave <= 11'b0;
+      else if(training_en && cc_in_edg && ave_cnt == 3'd7)
+        UI_ave <= UI_sum >> 3;
+      else if(~receive_en)
+        UI_ave <= 11'b0;
+    end
+
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
         UI_sum  <= 12'b0;
+        ave_cnt <= 3'b0;
       end
-      else begin
-        ave_cnt <= ave_cnt + 1;
-        UI_sum  <= UI_sum + th_1UI;
+      else if(training_en && cc_in_edg) begin
+        if(ave_cnt == 3'd7) begin
+          ave_cnt <= 3'b0;
+          UI_sum  <= 12'b0;
+        end
+        else begin
+          ave_cnt <= ave_cnt + 1;
+          UI_sum  <= UI_sum + th_1UI;
+        end
+      end
+      else if(~rx_pre_en) begin
+        UI_sum  <= 12'b0;
+        ave_cnt <= 3'b0;
       end
     end
-    else if(~rx_pre_en) begin
-      UI_sum  <= 12'b0;
-      ave_cnt <= 3'b0;
-    end
-
-  end
 
   // wire [19:0] avg_th_1UI;
   // fir_gaussian_lowpass u_fir_gaussian_lowpass (
@@ -327,85 +333,88 @@ module apb_ucpd_bmc_filter (
   //   );
 
   // according to sum ,to get 1UI for a bit duty at preamble, 1UI = sum/2*3/4
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      training_en <= 1'b0;
-      th_1UI      <= 11'b0;
-    end
-    else if(dec_rxbit_en) begin
-      training_en <= 1'b0;
-      th_1UI      <= 11'b0;
-    end
-    else if(first_2bit_end) begin
-      if((UI_cntA < UI_cntC) && (UI_cntB < UI_cntC)) begin
-        training_en <= 1'b1;
-        th_1UI      <= ((UI_cntA+UI_cntB+UI_cntC)*3)>>3; // (a+b+c)/2*3/4
-      end
-      else if((UI_cntA > UI_cntB) && (UI_cntA > UI_cntC)) begin
-        training_en <= 1'b1;
-        th_1UI      <= ((UI_cntA+UI_cntB+UI_cntC)*3)>>3; // (a+b+c)/2*3/4
-      end
-      else if((UI_cntB > UI_cntC) && (UI_cntB > UI_cntA)) begin // b>c,b>a, standing for lost begin 1
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
         training_en <= 1'b0;
         th_1UI      <= 11'b0;
       end
+      else if(dec_rxbit_en) begin
+        training_en <= 1'b0;
+        th_1UI      <= 11'b0;
+      end
+      else if(first_2bit_end) begin
+        if((UI_cntA < UI_cntC) && (UI_cntB < UI_cntC)) begin
+          training_en <= 1'b1;
+          th_1UI      <= ((UI_cntA+UI_cntB+UI_cntC)*3)>>3; // (a+b+c)/2*3/4
+        end
+        else if((UI_cntA > UI_cntB) && (UI_cntA > UI_cntC)) begin
+          training_en <= 1'b1;
+          th_1UI      <= ((UI_cntA+UI_cntB+UI_cntC)*3)>>3; // (a+b+c)/2*3/4
+        end
+        else if((UI_cntB > UI_cntC) && (UI_cntB > UI_cntA)) begin // b>c,b>a, standing for lost begin 1
+          training_en <= 1'b0;
+          th_1UI      <= 11'b0;
+        end
+      end
     end
-  end
 
   /*------------------------------------------------------------------------------
   --  generate recrice bit
   ------------------------------------------------------------------------------*/
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      rx_bmc <= 1'b0;
-    end
-    else if(eop_ok | hrst_vld | crst_vld)
-      rx_bmc <= 1'b0;
-    else if(cc_in_edg) begin
-      if(data_cnt > UI_ave)
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
         rx_bmc <= 1'b0;
-      else if(data1_flag)
-        rx_bmc <= 1'b1;
+      end
+      else if(eop_ok | hrst_vld | crst_vld)
+        rx_bmc <= 1'b0;
+      else if(cc_in_edg) begin
+        if(data_cnt > UI_ave)
+          rx_bmc <= 1'b0;
+        else if(data1_flag)
+          rx_bmc <= 1'b1;
+      end
     end
-  end
 
   /*------------------------------------------------------------------------------
   --  decode a bit need counter
   ------------------------------------------------------------------------------*/
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      data_cnt   <= 11'b0;
-      data1_flag <= 1'b0;
-    end
-    else if(eop_ok) begin
-      data_cnt   <= 11'b0;
-      data1_flag <= 1'b0;
-    end
-    else if(~receive_en) begin
-      data_cnt   <= 11'b0;
-      data1_flag <= 1'b0;
-    end
-    else if(cc_in_edg) begin
-      if(data_cnt <= UI_ave)
-        data1_flag <= 1'b1;
-      else
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
+        data_cnt   <= 11'b0;
         data1_flag <= 1'b0;
-      data_cnt <= 11'b0;
+      end
+      else if(eop_ok) begin
+        data_cnt   <= 11'b0;
+        data1_flag <= 1'b0;
+      end
+      else if(~receive_en) begin
+        data_cnt   <= 11'b0;
+        data1_flag <= 1'b0;
+      end
+      else if(cc_in_edg) begin
+        if(data_cnt <= UI_ave)
+          data1_flag <= 1'b1;
+        else
+          data1_flag <= 1'b0;
+        data_cnt <= 11'b0;
+      end
+      else if(rx_pre_en | rx_sop_en | rx_data_en)
+        data_cnt <= data_cnt+1;
     end
-    else if(rx_pre_en | rx_sop_en | rx_data_en)
-      data_cnt <= data_cnt+1;
-  end
 
   /*------------------------------------------------------------------------------
   --  for decode bmc bit generate poseedge
   ------------------------------------------------------------------------------*/
-
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      decode_bmc <= 1'b0;
-    else
-      decode_bmc <= rx_bmc;
-  end
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        decode_bmc <= 1'b0;
+      else
+        decode_bmc <= rx_bmc;
+    end
 
   assign pre_rxbit_edg = rx_pre_en & (decode_bmc ^ rx_bmc);
 
@@ -413,29 +422,30 @@ module apb_ucpd_bmc_filter (
   --  calculate receive bit edge counter in preamable, tottle 192
   ------------------------------------------------------------------------------*/
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      pre_rxbit_cnt <= 11'b0;
-    else if(rx_pre_cmplt)
-      pre_rxbit_cnt <= 11'b0;
-    else if(cc_in_vld && cc_in_edg)
-      pre_rxbit_cnt <= pre_rxbit_cnt+1;
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        pre_rxbit_cnt <= 11'b0;
+      else if(rx_pre_cmplt)
+        pre_rxbit_cnt <= 11'b0;
+      else if(cc_in_vld && cc_in_edg)
+        pre_rxbit_cnt <= pre_rxbit_cnt+1;
 
-  end
+    end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      receive_en <= 1'b0;
-    else if(training_en)
-      receive_en <= 1'b1;
-    else if(receive_en & (eop_ok | (hrst_vld | crst_vld)))
-      receive_en <= 1'b0;
-  end
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        receive_en <= 1'b0;
+      else if(training_en)
+        receive_en <= 1'b1;
+      else if(receive_en & (eop_ok | (hrst_vld | crst_vld)))
+        receive_en <= 1'b0;
+    end
 
   /*------------------------------------------------------------------------------
   --  calculate a receive bit time, to get one bit received complete signal
   ------------------------------------------------------------------------------*/
-
   always @(posedge ucpd_clk or negedge ic_rst_n) begin
     if(~ic_rst_n) begin
       rx_pre_hbit_cnt <= 11'b0;
@@ -453,57 +463,58 @@ module apb_ucpd_bmc_filter (
     end
   end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      rx_pre_hbit_time <= 11'b0;
-      rx_pre_lbit_time <= 11'b0;
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
+        rx_pre_hbit_time <= 11'b0;
+        rx_pre_lbit_time <= 11'b0;
+      end
+      else if(pre_rxbit_edg) begin
+        if(decode_bmc)
+          rx_pre_hbit_time <= rx_pre_hbit_cnt;
+        else
+          rx_pre_lbit_time <= rx_pre_lbit_cnt;
+      end
     end
-    else if(pre_rxbit_edg) begin
-      if(decode_bmc)
-        rx_pre_hbit_time <= rx_pre_hbit_cnt;
-      else
-        rx_pre_lbit_time <= rx_pre_lbit_cnt;
-    end
-  end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n) begin
-      rx_hbit_cnt <= 11'b0;
-      rx_lbit_cnt <= 11'b0;
-    end
-    else if(dec_rxbit_en) begin
-      if(decode_bmc) begin
-        if(rx_hbit_cmplt)
-          rx_hbit_cnt <= 11'b0;
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
+        rx_hbit_cnt <= 11'b0;
+        rx_lbit_cnt <= 11'b0;
+      end
+      else if(dec_rxbit_en) begin
+        if(decode_bmc) begin
+          if(rx_hbit_cmplt)
+            rx_hbit_cnt <= 11'b0;
+          else begin
+            rx_hbit_cnt <= rx_hbit_cnt+1;
+            rx_lbit_cnt <= 11'b0;
+          end
+        end
         else begin
-          rx_hbit_cnt <= rx_hbit_cnt+1;
-          rx_lbit_cnt <= 11'b0;
+          if(rx_lbit_cmplt)
+            rx_lbit_cnt <= 11'b0;
+          else begin
+            rx_lbit_cnt <= rx_lbit_cnt+1;
+            rx_hbit_cnt <= 11'b0;
+          end
         end
       end
-      else begin
-        if(rx_lbit_cmplt)
-          rx_lbit_cnt <= 11'b0;
-        else begin
-          rx_lbit_cnt <= rx_lbit_cnt+1;
-          rx_hbit_cnt <= 11'b0;
-        end
-      end
     end
-  end
 
   /*------------------------------------------------------------------------------
   --  detect sop, data, crc, eop half byte(5bits) recive complete
   ------------------------------------------------------------------------------*/
-  always @(posedge ucpd_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      rxbit_cnt <= 3'b0;
-    else if(rx_bit5_cmplt)
-      rxbit_cnt <= 3'b0;
-    else if(dec_rxbit_en & rx_bit_cmplt)
-      rxbit_cnt <= rxbit_cnt+1;
-  end
-
-
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        rxbit_cnt <= 3'b0;
+      else if(rx_bit5_cmplt)
+        rxbit_cnt <= 3'b0;
+      else if(dec_rxbit_en & rx_bit_cmplt)
+        rxbit_cnt <= rxbit_cnt+1;
+    end
 
 endmodule
 
@@ -555,22 +566,5 @@ endmodule
 //     end
 //   end
 // endmodule
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

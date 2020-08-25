@@ -26,12 +26,10 @@ module apb_ucpd_data_tx (
   input             tx_eop_cmplt ,
   input             txdr_req     ,
   input             pre_en       ,
-  input             bmc_en       ,
   input             sop_en       ,
   input             data_en      ,
   input             crc_en       ,
   input             eop_en       ,
-  input             bist_en      ,
   input             tx_ordset_we ,
   input             txfifo_ld_en ,
   input             txdr_we      ,
@@ -86,20 +84,22 @@ module apb_ucpd_data_tx (
   assign tx_status = {tx_und, hrst_sent,tx_hrst_disc,tx_msg_abt,tx_msg_sent,tx_msg_disc,tx_int_empty};
 
   reg bit_clk_red_d;
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      bit_clk_red_d <= 1'b0;
-    else
-      bit_clk_red_d <= bit_clk_red;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        bit_clk_red_d <= 1'b0;
+      else
+        bit_clk_red_d <= bit_clk_red;
+    end
 
   reg transmit_en_r;
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      transmit_en_r <= 1'b0;
-    else
-      transmit_en_r <= transmit_en;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        transmit_en_r <= 1'b0;
+      else
+        transmit_en_r <= transmit_en;
+    end
 
   assign transmit_en_red = ~transmit_en_r & transmit_en;
 
@@ -107,98 +107,106 @@ module apb_ucpd_data_tx (
   --  generate tx_hrst, tx_crst, tx_bist positive edge
   ------------------------------------------------------------------------------*/
   reg tx_hrst_r;
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_hrst_r <= 1'b0;
-    else
-      tx_hrst_r <= tx_hrst;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_hrst_r <= 1'b0;
+      else
+        tx_hrst_r <= tx_hrst;
+    end
 
   assign tx_hrst_red = ~tx_hrst_r & tx_hrst;
   assign tx_hrst_edg = tx_hrst_r ^ tx_hrst;
 
   reg tx_crst_r;
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_crst_r <= 1'b0;
-    else
-      tx_crst_r <= tx_crst;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_crst_r <= 1'b0;
+      else
+        tx_crst_r <= tx_crst;
+    end
   assign tx_crst_red = ~tx_crst_r & tx_crst;
 
   reg [1:0] tx_bist_r;
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_bist_r <= 2'b0;
-    else
-      tx_bist_r <= {tx_bist_r[0], tx_bist};
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_bist_r <= 2'b0;
+      else
+        tx_bist_r <= {tx_bist_r[0], tx_bist};
+    end
   assign tx_bist_red = ~tx_bist_r[1] & tx_bist_r[0];
   /*------------------------------------------------------------------------------
   --  according txdr write and txfifo read to generate txfifo's status
   --  0: txfifo empty, 1: txfifo is not empty
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      txfifo_full <= 1'b0;
-    else if(txdr_we_d)
-      txfifo_full <= 1'b1;
-    else if(txfifo_ld_en)
-      txfifo_full <= 1'b0;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        txfifo_full <= 1'b0;
+      else if(txdr_we_d)
+        txfifo_full <= 1'b1;
+      else if(txfifo_ld_en)
+        txfifo_full <= 1'b0;
+    end
 
   /*------------------------------------------------------------------------------
   --  This fifo is used to store tx data from SW writed, data 4b5b Symbol Encoding
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      txdr_we_d <= 1'b0;
-    else
-      txdr_we_d <= txdr_we;
-  end
-
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_data_10bits <= 10'b0;
-    else if(tx_hrst_red)
-      tx_data_10bits <= 10'b0;
-    else if(txdr_we_d) begin
-      tx_data_10bits[9:5] <= enc_4b5b(ic_txdr[7:4]);
-      tx_data_10bits[4:0] <= enc_4b5b(ic_txdr[3:0]);
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        txdr_we_d <= 1'b0;
+      else
+        txdr_we_d <= txdr_we;
     end
-  end
+
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_data_10bits <= 10'b0;
+      else if(tx_hrst_red)
+        tx_data_10bits <= 10'b0;
+      else if(txdr_we_d) begin
+        tx_data_10bits[9:5] <= enc_4b5b(ic_txdr[7:4]);
+        tx_data_10bits[4:0] <= enc_4b5b(ic_txdr[3:0]);
+      end
+    end
 
   /*------------------------------------------------------------------------------
   --  generate last tx bit
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_bit <= 1'b0;
-    else if(bit_clk_red_d) begin
-      if(pre_en)
-        tx_bit <= pre_shift[0];
-      else if(sop_en)
-        tx_bit <= sop_shift[0];
-      else if(data_en)
-        tx_bit <= data_shift[0];
-      else if(crc_en)
-        tx_bit <= crc_shift[0];
-      else if(eop_en)
-        tx_bit <= eop_shift[0];
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_bit <= 1'b0;
+      else if(bit_clk_red_d) begin
+        if(pre_en)
+          tx_bit <= pre_shift[0];
+        else if(sop_en)
+          tx_bit <= sop_shift[0];
+        else if(data_en)
+          tx_bit <= data_shift[0];
+        else if(crc_en)
+          tx_bit <= crc_shift[0];
+        else if(eop_en)
+          tx_bit <= eop_shift[0];
+      end
     end
-  end
 
   /*------------------------------------------------------------------------------
   --  generate preamble code, bit=1 number is 64, bit=0 number is 64, totle bit is 128
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      pre_shift <= 128'b0;
-    else if(transmit_en_red | tx_hrst_red | tx_crst_red | tx_sop_cmplt)
-      pre_shift <= {64{2'b10}};
-    else if(pre_en & bit_clk_red)
-      pre_shift <= {1'b0, pre_shift[127:1]};
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        pre_shift <= 128'b0;
+      else if(transmit_en_red | tx_hrst_red | tx_crst_red | tx_sop_cmplt)
+        pre_shift <= {64{2'b10}};
+      else if(pre_en & bit_clk_red)
+        pre_shift <= {1'b0, pre_shift[127:1]};
+    end
 
   /*------------------------------------------------------------------------------
   --  according tx order set value to shift sop bit
@@ -207,127 +215,138 @@ module apb_ucpd_data_tx (
   --  Sync-3 RST-1 Sync-1 RST-1
   ------------------------------------------------------------------------------*/
   reg tx_ordset_we_d;
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_ordset_we_d <= 1'b0;
-    else
-      tx_ordset_we_d <= tx_ordset_we;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_ordset_we_d <= 1'b0;
+      else
+        tx_ordset_we_d <= tx_ordset_we;
+    end
 
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      sop_shift <= 20'b0;
-    else if(tx_hrst_red)
-      sop_shift <= {`RST_2,`RST_1,`RST_1,`RST_1};
-    else if(tx_crst_red || (pre_en && tx_crst))
-      sop_shift <= {`SYNC_3,`RST_1,`SYNC_1,`RST_1};
-    else if(tx_ordset_we_d)
-      sop_shift <= tx_ordset;
-    else if(sop_en & bit_clk_red)
-      sop_shift <= {1'b0, sop_shift[19:1]};
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        sop_shift <= 20'b0;
+      else if(tx_hrst_red)
+        sop_shift <= {`RST_2,`RST_1,`RST_1,`RST_1};
+      else if(tx_crst_red || (pre_en && tx_crst))
+        sop_shift <= {`SYNC_3,`RST_1,`SYNC_1,`RST_1};
+      else if(tx_ordset_we_d)
+        sop_shift <= tx_ordset;
+      else if(sop_en & bit_clk_red)
+        sop_shift <= {1'b0, sop_shift[19:1]};
+    end
 
   /*------------------------------------------------------------------------------
   --  according encode tx data to shift data bit
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      data_shift <= 10'b0;
-    else if(txfifo_ld_en)
-      data_shift <= tx_data_10bits;
-    else if(data_en & bit_clk_red)
-      data_shift <= {1'b0, data_shift[9:1]};
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        data_shift <= 10'b0;
+      else if(txfifo_ld_en)
+        data_shift <= tx_data_10bits;
+      else if(data_en & bit_clk_red)
+        data_shift <= {1'b0, data_shift[9:1]};
+    end
 
   /*------------------------------------------------------------------------------
   --  according encode tx crc to shift crc bit
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      crc_shift <= 40'b0;
-    else if(tx_data_cmplt)
-      crc_shift <= tx_crc_40bits;
-    else if(crc_en & bit_clk_red)
-      crc_shift <= {1'b0, crc_shift[39:1]};
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        crc_shift <= 40'b0;
+      else if(tx_data_cmplt)
+        crc_shift <= tx_crc_40bits;
+      else if(crc_en & bit_clk_red)
+        crc_shift <= {1'b0, crc_shift[39:1]};
+    end
 
   /*------------------------------------------------------------------------------
   --  according `EOP to shift `EOP bit
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      eop_shift <= 5'b0;
-    else if(tx_crc_cmplt | tx_hrst_red)
-      eop_shift <= `EOP;
-    else if(eop_en & bit_clk_red)
-      eop_shift <= {1'b0, eop_shift[4:1]};
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        eop_shift <= 5'b0;
+      else if(tx_crc_cmplt | tx_hrst_red)
+        eop_shift <= `EOP;
+      else if(eop_en & bit_clk_red)
+        eop_shift <= {1'b0, eop_shift[4:1]};
+    end
 
   /*------------------------------------------------------------------------------
   --  transform crc data(32bits) 4bits to 5bits
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_crc_40bits <= 40'b0;
-    else begin
-      tx_crc_40bits[4:0]   <= enc_4b5b(crc_in[ 3: 0]);
-      tx_crc_40bits[9:5]   <= enc_4b5b(crc_in[ 7: 4]);
-      tx_crc_40bits[14:10] <= enc_4b5b(crc_in[11: 8]);
-      tx_crc_40bits[19:15] <= enc_4b5b(crc_in[15:12]);
-      tx_crc_40bits[24:20] <= enc_4b5b(crc_in[19:16]);
-      tx_crc_40bits[29:25] <= enc_4b5b(crc_in[23:20]);
-      tx_crc_40bits[34:30] <= enc_4b5b(crc_in[27:24]);
-      tx_crc_40bits[39:35] <= enc_4b5b(crc_in[31:28]);
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_crc_40bits <= 40'b0;
+      else begin
+        tx_crc_40bits[4:0]   <= enc_4b5b(crc_in[ 3: 0]);
+        tx_crc_40bits[9:5]   <= enc_4b5b(crc_in[ 7: 4]);
+        tx_crc_40bits[14:10] <= enc_4b5b(crc_in[11: 8]);
+        tx_crc_40bits[19:15] <= enc_4b5b(crc_in[15:12]);
+        tx_crc_40bits[24:20] <= enc_4b5b(crc_in[19:16]);
+        tx_crc_40bits[29:25] <= enc_4b5b(crc_in[23:20]);
+        tx_crc_40bits[34:30] <= enc_4b5b(crc_in[27:24]);
+        tx_crc_40bits[39:35] <= enc_4b5b(crc_in[31:28]);
+      end
     end
-  end
 
   /*------------------------------------------------------------------------------
   --  for fsm to generate tx hrst flag tx crst flag ,claer and hrest enable
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_hrst_flag <= 1'b0;
-    else if(tx_hrst_red)
-      tx_hrst_flag <= 1'b1;
-    else if(tx_hrst_flag & tx_sop_cmplt)
-      tx_hrst_flag <= 1'b0;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_hrst_flag <= 1'b0;
+      else if(tx_hrst_red)
+        tx_hrst_flag <= 1'b1;
+      else if(tx_hrst_flag & tx_sop_cmplt)
+        tx_hrst_flag <= 1'b0;
+    end
 
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      tx_crst_flag <= 1'b0;
-    else if(tx_crst_red || (pre_en && tx_crst))
-      tx_crst_flag <= 1'b1;
-    else if(tx_crst_flag & tx_sop_cmplt)
-      tx_crst_flag <= 1'b0;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx_crst_flag <= 1'b0;
+      else if(tx_crst_red || (pre_en && tx_crst))
+        tx_crst_flag <= 1'b1;
+      else if(tx_crst_flag & tx_sop_cmplt)
+        tx_crst_flag <= 1'b0;
+    end
 
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      txhrst_clr <= 1'b0;
-    else if((tx_hrst && (pre_en || sop_en || data_en || crc_en)) || tx_hrst_disc)
-      txhrst_clr <= 1'b1;
-    else
-      txhrst_clr <= 1'b0;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        txhrst_clr <= 1'b0;
+      else if((tx_hrst && (pre_en || sop_en || data_en || crc_en)) || tx_hrst_disc)
+        txhrst_clr <= 1'b1;
+      else
+        txhrst_clr <= 1'b0;
+    end
 
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      txsend_clr <= 1'b0;
-    else if((transmit_en & (tx_eop_cmplt | tx_wait_cmplt)) || tx_msg_disc)
-      txsend_clr <= 1'b1;
-    else
-      txsend_clr <= 1'b0;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        txsend_clr <= 1'b0;
+      else if((transmit_en & (tx_eop_cmplt | tx_wait_cmplt)) || tx_msg_disc)
+        txsend_clr <= 1'b1;
+      else
+        txsend_clr <= 1'b0;
+    end
 
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      hrst_tx_en <= 1'b0;
-    else if(tx_hrst_flag & tx_eop_cmplt)
-      hrst_tx_en <= 1'b1;
-    else if(hrst_tx_en & tx_sop_cmplt)
-      hrst_tx_en <= 1'b0;
-  end
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        hrst_tx_en <= 1'b0;
+      else if(tx_hrst_flag & tx_eop_cmplt)
+        hrst_tx_en <= 1'b1;
+      else if(hrst_tx_en & tx_sop_cmplt)
+        hrst_tx_en <= 1'b0;
+    end
 
   function [4:0] enc_4b5b (input [3:0] tx_4bits);
     begin
@@ -353,3 +372,4 @@ module apb_ucpd_data_tx (
   endfunction
 
 endmodule
+
