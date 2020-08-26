@@ -89,6 +89,10 @@ module apb_ucpd_if (
   reg [31:0] ic_rx_ordext2;
   reg      [ 1:0] vstate_cc1;
   reg      [ 1:0] vstate_cc2;
+  reg      [ 1:0] vstate_cc1_d0;
+  reg      [ 1:0] vstate_cc1_d1;
+  reg      [ 1:0] vstate_cc2_d0;
+  reg      [ 1:0] vstate_cc2_d1;
 
   // internal wires
   wire [31:0] ic_cfg1_s         ;
@@ -218,24 +222,40 @@ module apb_ucpd_if (
   ------------------------------------------------------------------------------*/
   always @(*)
     begin
-      case(vstate_cc1_src_sync)
-        3'b000  : vstate_cc1 = 2'd0;
-        3'b001  : vstate_cc1 = 2'd1;
-        3'b010  : vstate_cc1 = 2'd2;
-        3'b100  : vstate_cc1 = 2'd3;
-        default : vstate_cc1 = 2'd0;
-      endcase
+      if(source_en)
+        case(cc1_compout)
+          3'b001  : vstate_cc1 = 2'd0;
+          3'b011  : vstate_cc1 = 2'd1;
+          3'b111  : vstate_cc1 = 2'd2;
+          default : vstate_cc1 = 2'd3;
+        endcase
+      else
+        case(cc1_compout)
+          3'b000  : vstate_cc1 = 2'd0;
+          3'b001  : vstate_cc1 = 2'd1;
+          3'b011  : vstate_cc1 = 2'd2;
+          3'b111  : vstate_cc1 = 2'd3;
+          default : vstate_cc1 = 2'd0;
+        endcase
     end
 
   always @(*)
     begin
-      case(vstate_cc2_src_sync)
-        3'b000  : vstate_cc2 = 2'd0;
-        3'b001  : vstate_cc2 = 2'd1;
-        3'b010  : vstate_cc2 = 2'd2;
-        3'b100  : vstate_cc2 = 2'd3;
-        default : vstate_cc2 = 2'd0;
-      endcase
+      if(source_en)
+        case(cc2_compout)
+          3'b001  : vstate_cc2 = 2'd0;
+          3'b011  : vstate_cc2 = 2'd1;
+          3'b111  : vstate_cc2 = 2'd2;
+          default : vstate_cc2 = 2'd3;
+        endcase
+      else
+        case(cc2_compout)
+          3'b000  : vstate_cc2 = 2'd0;
+          3'b001  : vstate_cc2 = 2'd1;
+          3'b011  : vstate_cc2 = 2'd2;
+          3'b111  : vstate_cc2 = 2'd3;
+          default : vstate_cc2 = 2'd0;
+        endcase
     end
 
   assign phy_cc1_com = ~ic_cr[6] & ucpden;
@@ -298,44 +318,50 @@ module apb_ucpd_if (
   /*------------------------------------------------------------------------------
   --  generate typec_evt1, typec_evt2 and its positive edge for SR
   ------------------------------------------------------------------------------*/
-  assign vstate_cc1_src  = cc1_compout;
-  assign vstate_cc1_sync = vstate_cc1_src_sync;
-  apb_ucpd_bcm21 #(.WIDTH(2)) u_vstate_cc1_psyzr (
-    .clk_d   (pclk               ),
-    .rst_d_n (presetn            ),
-    .init_d_n(1'b1               ),
-    .test    (1'b0               ),
-    .data_s  (vstate_cc1_src     ),
-    .data_d  (vstate_cc1_src_sync)
-  );
 
-  assign vstate_cc2_src  = cc2_compout;
-  assign vstate_cc2_sync = vstate_cc2_src_sync;
-  apb_ucpd_bcm21 #(.WIDTH(2)) u_vstate_cc2_psyzr (
-    .clk_d   (pclk               ),
-    .rst_d_n (presetn            ),
-    .init_d_n(1'b1               ),
-    .test    (1'b0               ),
-    .data_s  (vstate_cc2_src     ),
-    .data_d  (vstate_cc2_src_sync)
-  );
+  // assign vstate_cc1_sync = vstate_cc1_d1;
+  // assign vstate_cc2_sync = vstate_cc2_d1;
 
-  reg [1:0] vstate_cc1_r;
-  reg [1:0] vstate_cc2_r;
+  // always @(posedge pclk or negedge presetn)
+  //   begin
+  //     if (presetn == 1'b0) begin
+  //       vstate_cc1_d0 <= 2'b0;
+  //       vstate_cc1_d1 <= 2'b0;
+  //     end
+  //     else begin
+  //       vstate_cc1_d0 <= cc1_compout;
+  //       vstate_cc1_d1 <= vstate_cc1_d0;
+  //     end
+  //   end
+
+  // always @(posedge pclk or negedge presetn)
+  //   begin
+  //     if (presetn == 1'b0) begin
+  //       vstate_cc2_d0 <= 2'b0;
+  //       vstate_cc2_d1 <= 2'b0;
+  //     end
+  //     else begin
+  //       vstate_cc2_d0 <= cc2_compout;
+  //       vstate_cc2_d1 <= vstate_cc2_d0;
+  //     end
+  //   end
+
+  reg [1:0] vstate_cc1_d;
+  reg [1:0] vstate_cc2_d;
   always @(posedge pclk or negedge presetn)
     begin
       if (presetn == 1'b0) begin
-        vstate_cc1_r <= 2'b0;
-        vstate_cc2_r <= 2'b0;
+        vstate_cc1_d <= 2'b0;
+        vstate_cc2_d <= 2'b0;
       end
       else begin
-        vstate_cc1_r <= vstate_cc1_sync;
-        vstate_cc2_r <= vstate_cc2_sync;
+        vstate_cc1_d <= vstate_cc1;
+        vstate_cc2_d <= vstate_cc2;
       end
     end
 
-  assign typec_evt1 = (vstate_cc1_r != vstate_cc1_sync);
-  assign typec_evt2 = (vstate_cc2_r != vstate_cc2_sync);
+  assign typec_evt1 = (vstate_cc1_d != vstate_cc1);
+  assign typec_evt2 = (vstate_cc2_d != vstate_cc2);
 
   reg  typec_evt1_d;
   reg  typec_evt2_d;

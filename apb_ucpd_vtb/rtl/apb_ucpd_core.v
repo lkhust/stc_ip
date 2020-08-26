@@ -31,6 +31,7 @@ module apb_ucpd_core (
 );
 
   wire        eop_ok          ;
+  wire        ucpd_clk        ;
   wire        bit_clk_red     ;
   wire        hbit_clk_red    ;
   wire        ucpd_clk_red    ;
@@ -192,7 +193,7 @@ module apb_ucpd_core (
 
   apb_ucpd_data_rx u_apb_ucpd_data_rx (
     .ic_clk       (ic_clk       ),
-    .ucpd_clk     (ucpd_clk_red ),
+    .ucpd_clk     (ucpd_clk     ),
     .ic_rst_n     (ic_rst_n     ),
     .rx_bit5_cmplt(rx_bit5_cmplt),
     .rx_bit_cmplt (rx_bit_cmplt ),
@@ -217,7 +218,7 @@ module apb_ucpd_core (
 
   apb_ucpd_fsm u_apb_ucpd_fsm (
     .ic_clk          (ic_clk          ),
-    .ucpd_clk        (ucpd_clk_red    ),
+    .ucpd_clk        (ucpd_clk        ),
     .ic_rst_n        (ic_rst_n        ),
     .ucpden          (ucpden          ),
     .tx_hrst         (tx_hrst         ),

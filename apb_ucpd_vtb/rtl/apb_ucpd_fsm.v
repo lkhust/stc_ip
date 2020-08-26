@@ -58,9 +58,6 @@ module apb_ucpd_fsm (
   output       bist_en
 );
 
-  // `include "parameter_def.v"
-
-
   /*------------------------------------------------------------------------------
   --  state variables for pd tx main FSM
   ------------------------------------------------------------------------------*/
@@ -81,7 +78,6 @@ module apb_ucpd_fsm (
   localparam RX_SOP  = 2'h2;
   localparam RX_DATA = 2'h3;
 
-
   // ----------------------------------------------------------
   // -- local registers and wires
   // ----------------------------------------------------------
@@ -98,7 +94,6 @@ module apb_ucpd_fsm (
   wire        trans_cmplt   ;
   wire        enc_txbit_en  ;
   wire [12:0] tx_paybit_size;
-  // wire        tx_bit5_cmplt ;
   wire        tx_pre_cmplt  ;
   wire        tx_bit10_cmplt;
   wire        tx_und        ;
@@ -115,8 +110,6 @@ module apb_ucpd_fsm (
   assign rx_pre_en  = (rx_cur_state == RX_PRE);
   assign rx_sop_en  = (rx_cur_state == RX_SOP);
   assign rx_data_en = (rx_cur_state == RX_DATA);
-
-  assign cc_rx_idle = (tx_cur_state == RX_IDLE);
 
   assign tx_und    = tx_status[6];
   assign hrst_sent = tx_status[5];
@@ -151,7 +144,7 @@ module apb_ucpd_fsm (
       if (!ic_rst_n)
         tx_cur_state <= TX_IDLE;
       else if(!ucpden)
-        rx_cur_state <= TX_IDLE;
+        tx_cur_state <= TX_IDLE;
       else
         tx_cur_state <= tx_nxt_state;
     end

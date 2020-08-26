@@ -102,31 +102,44 @@ module apb_ucpd_bmc_filter (
   /*------------------------------------------------------------------------------
   --  ic_cc_in filtering, filter the inputs from the cc bus
   ------------------------------------------------------------------------------*/
-  reg [2:0] cc_in_ored;
+  wire [2:0] cc_in_ored;
   reg cc_in_sync_d0;
   reg cc_in_sync_d1;
+  assign cc_in_ored = {cc_in_sync,cc_in_sync_d0,cc_in_sync_d1};
+  // always @(*)
+  //   begin
+  //    // cc_data_int_nxt = cc_in_sync;
+  //     if(rxfilt_2n3) // Wait for 2 consistent samples before considering it to be a new level
+  //       case(cc_in_ored[2:1])
+  //         2'b00 : cc_data_int_nxt = 1'b0;
+  //         2'b11 : cc_data_int_nxt = 1'b1;
+  //       endcase
+  //     else
+  //       case(cc_in_ored)
+  //         3'b000 : cc_data_int_nxt = 1'b0;
+  //         3'b111 : cc_data_int_nxt = 1'b1;
+  //       endcase
+  //   end
 
-  always @(*)
+  always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
-      cc_in_ored = {cc_in_sync,cc_in_sync_d0,cc_in_sync_d1};
-      if(rxfilt_2n3) // Wait for 2 consistent samples before considering it to be a new level
-        case(cc_in_ored[2:1])
-          2'b00 : cc_data_int_nxt = 1'b0;
-          2'b01 : cc_data_int_nxt = 1'b0;
-          2'b10 : cc_data_int_nxt = 1'b0;
-          2'b11 : cc_data_int_nxt = 1'b1;
-        endcase
-      else
-        case(cc_in_ored)
-          3'b000 : cc_data_int_nxt = 1'b0;
-          3'b001 : cc_data_int_nxt = 1'b0;
-          3'b010 : cc_data_int_nxt = 1'b0;
-          3'b011 : cc_data_int_nxt = 1'b0;
-          3'b100 : cc_data_int_nxt = 1'b0;
-          3'b101 : cc_data_int_nxt = 1'b0;
-          3'b110 : cc_data_int_nxt = 1'b0;
-          3'b111 : cc_data_int_nxt = 1'b1;
-        endcase
+      if(ic_rst_n == 1'b0)
+        cc_data_int_nxt <= 1'b0;
+      else begin
+        // Wait for 2/3 consistent samples before considering it to be a new level
+        if(rxfilt_2n3) begin
+          if(cc_in_ored[2:1] == 2'b00)
+            cc_data_int_nxt <= 1'b0;
+          else if(cc_in_ored[2:1] == 2'b11)
+            cc_data_int_nxt <= 1'b1;
+        end
+        else begin
+          if(cc_in_ored == 3'b000)
+            cc_data_int_nxt <= 1'b0;
+          else if(cc_in_ored == 3'b111)
+            cc_data_int_nxt <= 1'b1;
+        end
+      end
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
