@@ -12,7 +12,6 @@
 //  Date        : 2020-5-4
 //  Description : added "default case" in case(haddr_sel) list.
 //----------------------------------------------------------------------------
-
   `define FSMC_BCR1     8'h00
   `define FSMC_BTR1     8'h01
   `define FSMC_BCR2     8'h02
@@ -335,6 +334,56 @@ module ahb_slave_if (
   wire byte_sel_2 = word_at_00 | half_at_10 | byte_at_10;
   wire byte_sel_3 = word_at_00 | half_at_10 | byte_at_11;
 
+  reg half_at_10_d,       half_at_00_d;
+  reg byte_at_10_d,       byte_at_00_d;
+  reg byte_at_11_d,       byte_at_01_d;
+
+  always @ (posedge hclk or negedge hresetn)
+    begin
+      if (!hresetn)
+        half_at_10_d <= 1'b0;
+      else
+        half_at_10_d <= half_at_10;
+    end
+
+  always @ (posedge hclk or negedge hresetn)
+    begin
+      if (!hresetn)
+        half_at_00_d <= 1'b0;
+      else
+        half_at_00_d <= half_at_00;
+    end
+
+  always @ (posedge hclk or negedge hresetn)
+    begin
+      if (!hresetn) begin
+        byte_at_00_d <= 1'b0;
+        byte_at_01_d <= 1'b0;
+        byte_at_10_d <= 1'b0;
+        byte_at_11_d <= 1'b0;
+      end
+      else begin
+        byte_at_00_d <= byte_at_00;
+        byte_at_01_d <= byte_at_01;
+        byte_at_10_d <= byte_at_10;
+        byte_at_11_d <= byte_at_11;
+      end
+    end
+  wire [31:0] hwdata_mux = byte_at_00_d ? {hwdata[ 7: 0],hwdata[ 7: 0],hwdata[ 7: 0],hwdata[ 7: 0]} :
+                           byte_at_01_d ? {hwdata[15: 8],hwdata[15: 8],hwdata[15: 8],hwdata[15: 8]} :
+                           byte_at_10_d ? {hwdata[23:16],hwdata[23:16],hwdata[23:16],hwdata[23:16]} :
+                           byte_at_11_d ? {hwdata[31:24],hwdata[31:24],hwdata[31:24],hwdata[31:24]} :
+                           half_at_00_d ? {hwdata[15:0],hwdata[15:0]} :
+                           half_at_10_d ? {hwdata[31:16],hwdata[31:16]} :hwdata[31:0] ;
+
+  always @ (posedge hclk or negedge hresetn)
+    begin
+      if (!hresetn)
+        hwdata_r <= 32'b0;
+      else if(ahb_write_r)
+        hwdata_r <= hwdata_mux;
+    end
+
   wire buf_we_en = ahb_write;
 
   wire word_1sthalf_rise = word_1sthalf & ~word_1sthalf_r;
@@ -372,12 +421,6 @@ module ahb_slave_if (
       buf_adr <= haddr[27:0];
   end
 
-  always @ (posedge hclk or negedge hresetn) begin
-    if (!hresetn)
-      hwdata_r <= 32'b0;
-    else if(ahb_write_r)
-      hwdata_r <= hwdata[31:0];
-  end
 
   always @ (posedge hclk or negedge hresetn) begin
     if (!hresetn) begin
