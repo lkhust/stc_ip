@@ -75,8 +75,10 @@ module apb_ucpd_top (
   assign cc_in       = phy_cc1_com ? cc1_datai : cc2_datai;
   assign cc1_dataoen = phy_cc1_com ? cc_oen : 1'b0;
   assign cc2_dataoen = phy_cc2_com ? cc_oen : 1'b0;
-  assign cc1_datao   = phy_cc1_com ? cc_out : 1'b0;
-  assign cc2_datao   = phy_cc2_com ? cc_out : 1'b0;
+  // assign cc1_datao   = phy_cc1_com ? cc_out : 1'b0;
+  // assign cc2_datao   = phy_cc2_com ? cc_out : 1'b0;
+  assign cc1_datao   = (phy_cc1_com & cc_oen) ? cc_out : 1'bz;
+  assign cc2_datao   = (phy_cc2_com & cc_oen) ? cc_out : 1'bz;
 
   apb_ucpd_biu u_apb_ucpd_biu (
     .pclk    (pclk    ), // APB clock
@@ -155,6 +157,7 @@ module apb_ucpd_top (
     .tx_hrst     (tx_hrst     ),
     .cc_in       (cc_in       ),
     .transmit_en (transmit_en ),
+    .phy_rx_en   (phy_rx_en   ),
     .rxdr_rd     (rxdr_rd     ),
     .tx_ordset_we(tx_ordset_we),
     .rx_ordset_en(rx_ordset_en),

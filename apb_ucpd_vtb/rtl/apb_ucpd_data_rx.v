@@ -19,6 +19,7 @@ module apb_ucpd_data_rx (
   input            ic_rst_n     , // asynchronous reset, active low
   input            rx_bit5_cmplt,
   input            rx_bit_cmplt ,
+  input            rx_idle_en   ,
   input            rx_pre_en    ,
   input            rx_sop_en    ,
   input            rx_data_en   ,
@@ -37,8 +38,6 @@ module apb_ucpd_data_rx (
   output reg       eop_ok       ,
   output reg [7:0] rx_byte
 );
-
-  // `include "parameter_def.v"
 
   // ----------------------------------------------------------
   // -- local registers and wires
@@ -152,6 +151,8 @@ module apb_ucpd_data_rx (
     begin
       if(~ic_rst_n)
         rxfifo_full <= 1'b0;
+      else if(eop_ok | rx_idle_en)
+        rxfifo_full <= 1'b0;
       else if(rxdr_rd)
         rxfifo_full <= 1'b0;
       else if(rxfifo_wr_en)
@@ -166,7 +167,7 @@ module apb_ucpd_data_rx (
     begin
       if(~ic_rst_n)
         rx_data = 8'b0;
-      else if(eop_ok)
+      else if(eop_ok | rx_idle_en)
         rx_data = 8'b0;
       else if(rx_5bits_cnt[0] & rx_data_en)
         rx_data[3:0] = decode_4b;
@@ -203,7 +204,7 @@ module apb_ucpd_data_rx (
         rx_1byte_cmplt <= 1'b0;
         rx_hafbyte_cnt <= 2'b0;
       end
-      else if(eop_ok) begin
+      else if(eop_ok | rx_idle_en) begin
         rx_1byte_cmplt <= 1'b0;
         rx_hafbyte_cnt <= 2'b0;
       end
@@ -337,6 +338,12 @@ module apb_ucpd_data_rx (
         sop_k3_code <= 5'b0;
         sop_k4_code <= 5'b0;
       end
+      else if(rx_pre_en) begin
+        sop_k1_code <= 5'b0;
+        sop_k2_code <= 5'b0;
+        sop_k3_code <= 5'b0;
+        sop_k4_code <= 5'b0;
+      end
       else if(sop_k1_rd)
         sop_k1_code <= sop_k1_code_nxt;
       else if(sop_k2_rd)
@@ -366,53 +373,51 @@ module apb_ucpd_data_rx (
       sop_3st_ok = 1'b0;
       sop_4st_ok = 1'b0;
       eop_ok_nxt = 1'b0;
-      if(rx_sop_en_d && rx_data_en_d) begin
-        case(sop_k1_code)
-          `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_1st_ok = 1'b1;
-          `EOP    : eop_ok_nxt = 1'b1;
-          default :
-            begin
-              sop_1st_ok = 1'b0;
-              eop_ok_nxt = 1'b0;
-            end
-        endcase
 
-        case(sop_k2_code)
-          `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_2st_ok = 1'b1;
-          `EOP    : eop_ok_nxt = 1'b1;
-          default :
-            begin
-              sop_2st_ok = 1'b0;
-              eop_ok_nxt = 1'b0;
-            end
-        endcase
+      if(rx_5bits == `EOP)
+        eop_ok_nxt = 1'b1;
+      else
+        eop_ok_nxt = 1'b0;
 
-        case(sop_k3_code)
-          `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_3st_ok = 1'b1;
-          `EOP    : eop_ok_nxt = 1'b1;
-          default :
-            begin
-              sop_3st_ok = 1'b0;
-              eop_ok_nxt = 1'b0;
-            end
-        endcase
+      case(sop_k1_code)
+        `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_1st_ok = 1'b1;
+        `EOP    : eop_ok_nxt = 1'b1;
+        default :
+          begin
+            sop_1st_ok = 1'b0;
+            eop_ok_nxt = 1'b0;
+          end
+      endcase
 
-        case(sop_k4_code)
-          `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_4st_ok = 1'b1;
-          `EOP    : eop_ok_nxt = 1'b1;
-          default :
-            begin
-              sop_4st_ok = 1'b0;
-              eop_ok_nxt = 1'b0;
-            end
-        endcase
-      end
-      else if(rx_data_en) begin
-        if(rx_5bits == `EOP)
-          eop_ok_nxt = 1'b1;
-        else
-          eop_ok_nxt = 1'b0;
-      end
+      case(sop_k2_code)
+        `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_2st_ok = 1'b1;
+        `EOP    : eop_ok_nxt = 1'b1;
+        default :
+          begin
+            sop_2st_ok = 1'b0;
+            eop_ok_nxt = 1'b0;
+          end
+      endcase
+
+      case(sop_k3_code)
+        `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_3st_ok = 1'b1;
+        `EOP    : eop_ok_nxt = 1'b1;
+        default :
+          begin
+            sop_3st_ok = 1'b0;
+            eop_ok_nxt = 1'b0;
+          end
+      endcase
+
+      case(sop_k4_code)
+        `SYNC_1, `SYNC_2, `SYNC_3, `RST_1, `RST_2 : sop_4st_ok = 1'b1;
+        `EOP    : eop_ok_nxt = 1'b1;
+        default :
+          begin
+            sop_4st_ok = 1'b0;
+            eop_ok_nxt = 1'b0;
+          end
+      endcase
     end
 
   /*------------------------------------------------------------------------------
@@ -431,7 +436,7 @@ module apb_ucpd_data_rx (
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_1) & (sop_k4_code == `SYNC_2)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_2)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_2)))
-        sop0_vld = 1'b1;
+      sop0_vld = 1'b1;
       else
         sop0_vld = 1'b0;
 
@@ -439,7 +444,7 @@ module apb_ucpd_data_rx (
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_1) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_3)))
-        sop1_vld = 1'b1;
+      sop1_vld = 1'b1;
       else
         sop1_vld = 1'b0;
 
@@ -447,7 +452,7 @@ module apb_ucpd_data_rx (
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `RST_2) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `RST_2) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `RST_2 ) & (sop_k3_code == `RST_2) & (sop_k4_code == `SYNC_3)))
-        sop1_deg_vld = 1'b1;
+      sop1_deg_vld = 1'b1;
       else
         sop1_deg_vld = 1'b0;
 
@@ -455,7 +460,7 @@ module apb_ucpd_data_rx (
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_3) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `SYNC_3) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_3)))
-        sop2_vld = 1'b1;
+      sop2_vld = 1'b1;
       else
         sop2_vld = 1'b0;
 
@@ -463,7 +468,7 @@ module apb_ucpd_data_rx (
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `RST_2 ) & (sop_k4_code == `SYNC_2)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_2)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_2)))
-        sop2_deg_vld = 1'b1;
+      sop2_deg_vld = 1'b1;
       else
         sop2_deg_vld = 1'b0;
 
@@ -471,7 +476,7 @@ module apb_ucpd_data_rx (
         ((sop_k1_code == `RST_1 ) & (sop_k2_code == `SYNC_1) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `RST_1 ) & (sop_k3_code == `RST_1 ) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `RST_1 ) & (sop_k4_code == `SYNC_3)))
-        crst_vld = 1'b1;
+      crst_vld = 1'b1;
       else
         crst_vld = 1'b0;
 
@@ -479,7 +484,7 @@ module apb_ucpd_data_rx (
         ((sop_k1_code == `RST_1 ) & (sop_k2_code == `RST_1) & (sop_k4_code == `RST_2)) |
         ((sop_k1_code == `RST_1 ) & (sop_k3_code == `RST_1) & (sop_k4_code == `RST_2)) |
         ((sop_k2_code == `RST_1 ) & (sop_k3_code == `RST_1) & (sop_k4_code == `RST_2)))
-        hrst_vld = 1'b1;
+      hrst_vld = 1'b1;
       else
         hrst_vld = 1'b0;
     end
@@ -491,6 +496,8 @@ module apb_ucpd_data_rx (
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
       if(~ic_rst_n)
+        bmc_rx_shift <= 5'b0;
+      else if(eop_ok | rx_idle_en)
         bmc_rx_shift <= 5'b0;
       else if(dec_rxbit_en & rx_bit_cmplt)
         bmc_rx_shift <= {decode_bmc, bmc_rx_shift[4:1]};

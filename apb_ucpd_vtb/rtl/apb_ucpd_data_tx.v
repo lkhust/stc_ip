@@ -19,11 +19,13 @@ module apb_ucpd_data_tx (
   input             tx_hrst      ,
   input             bit_clk_red  ,
   input             transmit_en  ,
+  input             tx_pre_cmplt ,
   input             tx_sop_cmplt ,
   input             tx_crc_cmplt ,
   input             tx_wait_cmplt,
   input             tx_data_cmplt,
   input             tx_eop_cmplt ,
+  input             tx_bit5_cmplt,
   input             txdr_req     ,
   input             pre_en       ,
   input             sop_en       ,
@@ -49,8 +51,6 @@ module apb_ucpd_data_tx (
   output reg        hrst_tx_en   ,
   output reg        tx_bit
 );
-
-  // `include "parameter_def.v"
 
   // ----------------------------------------------------------
   // -- local registers and wires
@@ -166,8 +166,8 @@ module apb_ucpd_data_tx (
     begin
       if(~ic_rst_n)
         tx_data_10bits <= 10'b0;
-      else if(tx_hrst_red)
-        tx_data_10bits <= 10'b0;
+      // else if(tx_hrst_red)
+      //   tx_data_10bits <= 10'b0;
       else if(txdr_we_d) begin
         tx_data_10bits[9:5] <= enc_4b5b(ic_txdr[7:4]);
         tx_data_10bits[4:0] <= enc_4b5b(ic_txdr[3:0]);
@@ -227,7 +227,7 @@ module apb_ucpd_data_tx (
     begin
       if(~ic_rst_n)
         sop_shift <= 20'b0;
-      else if(tx_hrst_red)
+      else if(tx_hrst_red || (hrst_tx_en & tx_pre_cmplt))
         sop_shift <= {`RST_2,`RST_1,`RST_1,`RST_1};
       else if(tx_crst_red || (pre_en && tx_crst))
         sop_shift <= {`SYNC_3,`RST_1,`SYNC_1,`RST_1};
@@ -270,7 +270,7 @@ module apb_ucpd_data_tx (
     begin
       if(~ic_rst_n)
         eop_shift <= 5'b0;
-      else if(tx_crc_cmplt | tx_hrst_red)
+      else if(tx_crc_cmplt | (tx_hrst_flag & tx_bit5_cmplt))
         eop_shift <= `EOP;
       else if(eop_en & bit_clk_red)
         eop_shift <= {1'b0, eop_shift[4:1]};
@@ -322,7 +322,8 @@ module apb_ucpd_data_tx (
     begin
       if(~ic_rst_n)
         txhrst_clr <= 1'b0;
-      else if((tx_hrst && (pre_en || sop_en || data_en || crc_en)) || tx_hrst_disc)
+      // else if((tx_hrst && (pre_en || sop_en || data_en || crc_en)) || tx_hrst_disc)
+      else if((tx_hrst && eop_en) || tx_hrst_disc)
         txhrst_clr <= 1'b1;
       else
         txhrst_clr <= 1'b0;

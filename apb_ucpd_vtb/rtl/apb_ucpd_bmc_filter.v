@@ -9,9 +9,11 @@ module apb_ucpd_bmc_filter (
   input      [1:0] rxfilte      ,
   input            hrst_vld     ,
   input            crst_vld     ,
+  input            rx_idle_en   ,
   input            rx_pre_en    ,
   input            rx_sop_en    ,
   input            rx_data_en   ,
+  input            phy_rx_en    ,
   input            eop_ok       ,
   input            bmc_en       ,
   input            dec_rxbit_en ,
@@ -28,38 +30,38 @@ module apb_ucpd_bmc_filter (
   // -- local registers and wires
   // ----------------------------------------------------------
   //regs
-  reg         cc_data_int     ;
-  reg         training_en     ;
-  reg [ 1:0]  simple_cnt      ;
-  reg [10:0]  UI_cntA         ;
-  reg [10:0]  UI_cntB         ;
-  reg [10:0]  UI_cntC         ;
-  reg [10:0]  th_1UI          ;
-  reg         rx_bmc          ;
-  reg [10:0]  data_cnt        ;
-  reg         data1_flag      ;
-  reg         tx_bmc          ;
-  reg [10:0]  pre_rxbit_cnt   ;
-  reg         cc_in_d         ;
-  reg         cc_data_int_nxt ;
-  reg [10:0]  UI_ave          ;
-  reg [11:0]  UI_sum          ;
-  reg [ 2:0]  ave_cnt         ;
-  reg [10:0]  rx_pre_hbit_cnt ;
-  reg [10:0]  rx_pre_lbit_cnt ;
-  reg [10:0]  rx_pre_hbit_time;
-  reg [10:0]  rx_pre_lbit_time;
-  reg [10:0]  rx_hbit_cnt     ;
-  reg [10:0]  rx_lbit_cnt     ;
-  reg [ 2:0]  rxbit_cnt       ;
-  reg         cc_in_vld       ;
-  reg [10:0]  UI_H_cnt        ;
-  reg [10:0]  UI_L_cnt        ;
+  reg        cc_data_int     ;
+  reg        training_en     ;
+  reg [ 1:0] simple_cnt      ;
+  reg [10:0] UI_cntA         ;
+  reg [10:0] UI_cntB         ;
+  reg [10:0] UI_cntC         ;
+  reg [10:0] th_1UI          ;
+  reg        rx_bmc          ;
+  reg [10:0] data_cnt        ;
+  reg        data1_flag      ;
+  reg        tx_bmc          ;
+  reg [10:0] pre_rxbit_cnt   ;
+  reg        cc_in_d         ;
+  reg        cc_data_int_nxt ;
+  reg [10:0] UI_ave          ;
+  reg [11:0] UI_sum          ;
+  reg [ 2:0] ave_cnt         ;
+  reg [10:0] rx_pre_hbit_cnt ;
+  reg [10:0] rx_pre_lbit_cnt ;
+  reg [10:0] rx_pre_hbit_time;
+  reg [10:0] rx_pre_lbit_time;
+  reg [10:0] rx_hbit_cnt     ;
+  reg [10:0] rx_lbit_cnt     ;
+  reg [ 2:0] rxbit_cnt       ;
+  reg        cc_in_vld       ;
+  reg [10:0] UI_H_cnt        ;
+  reg [10:0] UI_L_cnt        ;
+  reg        first_2bit_end  ;
+  reg        cc_in_sync      ;
 
   //wires
   wire cc_in_edg     ;
-  reg  first_2bit_end;
-  reg  cc_in_sync    ;
   wire rxfilt_2n3    ;
   wire rxfilt_dis    ;
   wire cc_in_sync_nxt;
@@ -68,7 +70,8 @@ module apb_ucpd_bmc_filter (
   wire pre_rxbit_edg ;
 
   assign rx_pre_cmplt  = rx_pre_en && (pre_rxbit_cnt == `RX_PRE_EDG);
-  assign rx_bit_cmplt  = decode_bmc ? rx_hbit_cmplt : rx_lbit_cmplt;
+  // assign rx_bit_cmplt  = decode_bmc ? rx_hbit_cmplt : rx_lbit_cmplt;
+  assign rx_bit_cmplt  = rx_hbit_cmplt | rx_lbit_cmplt;
   assign cc_int        = rxfilt_dis ? cc_in_sync : cc_data_int;
   assign cc_int_nxt    = rxfilt_dis ? cc_in_sync_nxt : cc_data_int_nxt;
   assign rx_hbit_cmplt = (rx_hbit_cnt == rx_pre_hbit_time);
@@ -105,53 +108,40 @@ module apb_ucpd_bmc_filter (
   wire [2:0] cc_in_ored;
   reg cc_in_sync_d0;
   reg cc_in_sync_d1;
-  assign cc_in_ored = {cc_in_sync,cc_in_sync_d0,cc_in_sync_d1};
-  // always @(*)
-  //   begin
-  //    // cc_data_int_nxt = cc_in_sync;
-  //     if(rxfilt_2n3) // Wait for 2 consistent samples before considering it to be a new level
-  //       case(cc_in_ored[2:1])
-  //         2'b00 : cc_data_int_nxt = 1'b0;
-  //         2'b11 : cc_data_int_nxt = 1'b1;
-  //       endcase
-  //     else
-  //       case(cc_in_ored)
-  //         3'b000 : cc_data_int_nxt = 1'b0;
-  //         3'b111 : cc_data_int_nxt = 1'b1;
-  //       endcase
-  //   end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n)
+  assign cc_in_ored = {cc_in_sync,cc_in_sync_d0,cc_in_sync_d1};
+
+  /*------------------------------------------------------------------------------
+  --  Wait for 2/3 consistent samples before considering it to be a new level
+  ------------------------------------------------------------------------------*/
+  always @(*)
     begin
-      if(ic_rst_n == 1'b0)
-        cc_data_int_nxt <= 1'b0;
+      // cc_data_int_nxt = cc_in_sync;
+      if(rxfilt_2n3) begin
+        if(cc_in_ored[2:1] == 2'b00)
+          cc_data_int_nxt = 1'b0;
+        else if(cc_in_ored[2:1] == 2'b11)
+          cc_data_int_nxt = 1'b1;
+      end
       else begin
-        // Wait for 2/3 consistent samples before considering it to be a new level
-        if(rxfilt_2n3) begin
-          if(cc_in_ored[2:1] == 2'b00)
-            cc_data_int_nxt <= 1'b0;
-          else if(cc_in_ored[2:1] == 2'b11)
-            cc_data_int_nxt <= 1'b1;
-        end
-        else begin
-          if(cc_in_ored == 3'b000)
-            cc_data_int_nxt <= 1'b0;
-          else if(cc_in_ored == 3'b111)
-            cc_data_int_nxt <= 1'b1;
-        end
+        if(cc_in_ored == 3'b000)
+          cc_data_int_nxt = 1'b0;
+        else if(cc_in_ored == 3'b111)
+          cc_data_int_nxt = 1'b1;
       end
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
-      if(ic_rst_n == 1'b0) begin
+      if(ic_rst_n == 1'b0)
         cc_data_int <= 1'b0;
-        cc_in_sync  <= 1'b0;
-      end
-      else begin
+      else
         cc_data_int <= cc_data_int_nxt;
-        cc_in_sync  <= cc_in_sync_nxt;
-      end
+    end
+
+  always @(posedge ucpd_clk)
+    begin
+      cc_in_sync <= cc_in_sync_nxt;
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
@@ -202,6 +192,7 @@ module apb_ucpd_bmc_filter (
       else
         cc_in_d <= cc_int_nxt; // for generate edg
     end
+
   assign cc_in_edg = cc_in_d ^ cc_int_nxt;
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
@@ -264,7 +255,6 @@ module apb_ucpd_bmc_filter (
           simple_cnt <= simple_cnt+1;
       end
     end
-
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
@@ -380,7 +370,7 @@ module apb_ucpd_bmc_filter (
       if(~ic_rst_n) begin
         rx_bmc <= 1'b0;
       end
-      else if(eop_ok | hrst_vld | crst_vld)
+      else if(eop_ok | rx_idle_en)
         rx_bmc <= 1'b0;
       else if(cc_in_edg) begin
         if(data_cnt > UI_ave)
@@ -399,7 +389,7 @@ module apb_ucpd_bmc_filter (
         data_cnt   <= 11'b0;
         data1_flag <= 1'b0;
       end
-      else if(eop_ok) begin
+      else if(eop_ok | rx_idle_en) begin
         data_cnt   <= 11'b0;
         data1_flag <= 1'b0;
       end
@@ -443,14 +433,13 @@ module apb_ucpd_bmc_filter (
         pre_rxbit_cnt <= 11'b0;
       else if(cc_in_vld && cc_in_edg)
         pre_rxbit_cnt <= pre_rxbit_cnt+1;
-
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
       if(~ic_rst_n)
         receive_en <= 1'b0;
-      else if(training_en)
+      else if(training_en & phy_rx_en)
         receive_en <= 1'b1;
       else if(receive_en & (eop_ok | (hrst_vld | crst_vld)))
         receive_en <= 1'b0;
@@ -464,7 +453,7 @@ module apb_ucpd_bmc_filter (
       rx_pre_hbit_cnt <= 11'b0;
       rx_pre_lbit_cnt <= 11'b0;
     end
-    else if(training_en) begin
+    else if(rx_pre_en) begin
       if(decode_bmc) begin
         rx_pre_hbit_cnt <= rx_pre_hbit_cnt+1;
         rx_pre_lbit_cnt <= 11'b0;
@@ -473,6 +462,10 @@ module apb_ucpd_bmc_filter (
         rx_pre_lbit_cnt <= rx_pre_lbit_cnt+1;
         rx_pre_hbit_cnt <= 11'b0;
       end
+    end
+    else begin
+      rx_pre_hbit_cnt <= 11'b0;
+      rx_pre_lbit_cnt <= 11'b0;
     end
   end
 
@@ -513,6 +506,10 @@ module apb_ucpd_bmc_filter (
             rx_hbit_cnt <= 11'b0;
           end
         end
+      end
+      else begin
+        rx_hbit_cnt <= 11'b0;
+        rx_lbit_cnt <= 11'b0;
       end
     end
 

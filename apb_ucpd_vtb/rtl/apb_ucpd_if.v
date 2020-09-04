@@ -14,6 +14,7 @@
 
 `define IC_CFG1_OS        8'h00
 `define IC_CFG2_OS        8'h04
+`define IC_JITTER_OS      8'h08
 // address 8'h08 is Reserved
 `define IC_CR_OS          8'h0c
 `define IC_IMR_OS         8'h10
@@ -77,75 +78,87 @@ module apb_ucpd_if (
   output reg [31:0] iprdata       // internal APB read data
 );
   // internal registers
-  reg [31:0] ic_cfg1;
-  reg [31:0] ic_cfg2;
-  reg [31:0] ic_cr;
-  reg [31:0] ic_imr;
-  reg [31:0] ic_icr;
-  reg [31:0] ic_sr;
-  reg [31:0] ic_tx_ordset;
-  reg [31:0] ic_tx_paysz;
+  reg [31:0] ic_cfg1      ;
+  reg [31:0] ic_cfg2      ;
+  reg [31:0] ic_jitter    ;
+  reg [31:0] ic_cr        ;
+  reg [31:0] ic_imr       ;
+  reg [31:0] ic_icr       ;
+  reg [31:0] ic_sr        ;
+  reg [31:0] ic_tx_ordset ;
+  reg [31:0] ic_tx_paysz  ;
   reg [31:0] ic_rx_ordext1;
   reg [31:0] ic_rx_ordext2;
-  reg      [ 1:0] vstate_cc1;
-  reg      [ 1:0] vstate_cc2;
-  reg      [ 1:0] vstate_cc1_d0;
-  reg      [ 1:0] vstate_cc1_d1;
-  reg      [ 1:0] vstate_cc2_d0;
-  reg      [ 1:0] vstate_cc2_d1;
+  reg [ 1:0] vstate_cc1   ;
+  reg [ 1:0] vstate_cc2   ;
+  reg [ 1:0] vstate_cc1_d0;
+  reg [ 1:0] vstate_cc1_d1;
+  reg [ 1:0] vstate_cc2_d0;
+  reg [ 1:0] vstate_cc2_d1;
 
   // internal wires
-  wire [31:0] ic_cfg1_s         ;
-  wire [31:0] ic_cfg2_s         ;
-  wire [31:0] ic_cr_s           ;
-  wire [31:0] ic_imr_s          ;
-  wire [31:0] ic_sr_s           ;
-  wire [31:0] ic_tx_paysz_s     ;
-  wire [31:0] ic_txdr_s         ;
-  wire [31:0] ic_rx_ordset_s    ;
-  wire [31:0] ic_rx_paysz_s     ;
-  wire [31:0] ic_rxdr_s         ;
-  wire [31:0] ic_rx_ordext1_s   ;
-  wire [31:0] ic_rx_ordext2_s   ;
-  wire [ 2:0] evt_intr_en       ;
-  wire        ic_cfg1_en        ;
-  wire        ic_cfg2_en        ;
-  wire        ic_cr_en          ;
-  wire        ic_imr_en         ;
-  wire        ic_sr_en          ;
-  wire        ic_icr_en         ;
-  wire        ic_tx_ordset_en   ;
-  wire        ic_tx_paysz_en    ;
-  wire        ic_txdr_en        ;
-  wire        ic_rx_ordset_en   ;
-  wire        ic_rx_paysz_en    ;
-  wire        ic_rxdr_en        ;
-  wire        ic_rx_ordext1_en  ;
-  wire        ic_rx_ordext2_en  ;
-  wire        ic_cfg1_we        ;
-  wire        ic_cfg2_we        ;
-  wire        ic_cr_we          ;
-  wire        ic_imr_we         ;
-  wire        ic_icr_we         ;
-  wire        ic_tx_ordset_we   ;
-  wire        ic_tx_paysz_we    ;
-  wire        ic_txdr_we        ;
-  wire        ic_rx_ordext1_we  ;
-  wire        ic_rx_ordext2_we  ;
-  wire [ 6:0] tx_status_sync_red;
-  wire [ 5:0] rx_status_sync_red;
-  wire [ 6:0] tx_status_sync    ;
-  wire [ 5:0] rx_status_sync    ;
-  wire [ 1:0] vstate_cc1_sync   ;
-  wire [ 1:0] vstate_cc2_sync   ;
-  wire        typec_evt1_red    ;
-  wire        typec_evt2_red    ;
-  wire        frs_evt_red       ;
-  wire        hard_rst          ;
-  wire [1:0] vstate_cc1_src     ;
-  wire [1:0] vstate_cc1_src_sync;
-  wire [1:0] vstate_cc2_src     ;
-  wire [1:0] vstate_cc2_src_sync;
+  wire [31:0] ic_cfg1_s          ;
+  wire [31:0] ic_cfg2_s          ;
+  wire [31:0] ic_jitter_s        ;
+  wire [31:0] ic_cr_s            ;
+  wire [31:0] ic_imr_s           ;
+  wire [31:0] ic_sr_s            ;
+  wire [31:0] ic_tx_paysz_s      ;
+  wire [31:0] ic_txdr_s          ;
+  wire [31:0] ic_rx_ordset_s     ;
+  wire [31:0] ic_rx_paysz_s      ;
+  wire [31:0] ic_rxdr_s          ;
+  wire [31:0] ic_rx_ordext1_s    ;
+  wire [31:0] ic_rx_ordext2_s    ;
+  wire [ 2:0] evt_intr_en        ;
+  wire        ic_cfg1_en         ;
+  wire        ic_cfg2_en         ;
+  wire        ic_cr_en           ;
+  wire        ic_imr_en          ;
+  wire        ic_sr_en           ;
+  wire        ic_icr_en          ;
+  wire        ic_tx_ordset_en    ;
+  wire        ic_tx_paysz_en     ;
+  wire        ic_txdr_en         ;
+  wire        ic_rx_ordset_en    ;
+  wire        ic_rx_paysz_en     ;
+  wire        ic_rxdr_en         ;
+  wire        ic_rx_ordext1_en   ;
+  wire        ic_rx_ordext2_en   ;
+  wire        ic_cfg1_we         ;
+  wire        ic_cfg2_we         ;
+  wire        ic_cr_we           ;
+  wire        ic_imr_we          ;
+  wire        ic_icr_we          ;
+  wire        ic_tx_ordset_we    ;
+  wire        ic_tx_paysz_we     ;
+  wire        ic_txdr_we         ;
+  wire        ic_rx_ordext1_we   ;
+  wire        ic_rx_ordext2_we   ;
+  wire [ 6:0] tx_status_sync_red ;
+  wire [ 5:0] rx_status_sync_red ;
+  wire [ 6:0] tx_status_sync     ;
+  wire [ 5:0] rx_status_sync     ;
+  wire [ 1:0] vstate_cc1_sync    ;
+  wire [ 1:0] vstate_cc2_sync    ;
+  wire        typec_evt1_red     ;
+  wire        typec_evt2_red     ;
+  wire        frs_evt_red        ;
+  wire        hard_rst           ;
+  wire [ 1:0] vstate_cc1_src     ;
+  wire [ 1:0] vstate_cc1_src_sync;
+  wire [ 1:0] vstate_cc2_src     ;
+  wire [ 1:0] vstate_cc2_src_sync;
+  wire [ 2:0] cc1_comp           ;
+  wire [ 2:0] cc2_comp           ;
+  wire [ 2:0] cc1_compout_jitter ;
+  wire [ 2:0] cc2_compout_jitter ;
+  wire [ 9:0] det_us             ;
+  wire [ 4:0] det_ms             ;
+  wire [ 5:0] clk_freq           ;
+
+  assign ic_clk   = pclk;
+  assign ic_rst_n = presetn;
 
   assign hard_rst       = tx_status[5];
   assign ic_rx_ordset_s = {{25{1'b0}}, rx_ordset};
@@ -159,6 +172,10 @@ module apb_ucpd_if (
   assign tx_paysize   = ic_tx_paysz[9:0];
   assign rxfilte      = ic_cfg2[1:0];
   assign transmit_en  = ic_cr[2];
+  assign clk_freq     = ic_jitter[22:17];
+  assign jitter_en    = ic_jitter[16];
+  assign det_us       = ic_jitter[15:5];
+  assign det_ms       = ic_jitter[4:0];
 
   /*------------------------------------------------------------------------------
   --  Address decoder
@@ -168,6 +185,7 @@ module apb_ucpd_if (
   ------------------------------------------------------------------------------*/
   assign ic_cfg1_en       = {2'b00, reg_addr} == (`IC_CFG1_OS       >> 2);
   assign ic_cfg2_en       = {2'b00, reg_addr} == (`IC_CFG2_OS       >> 2);
+  assign ic_jitter_en     = {2'b00, reg_addr} == (`IC_JITTER_OS     >> 2);
   assign ic_cr_en         = {2'b00, reg_addr} == (`IC_CR_OS         >> 2);
   assign ic_imr_en        = {2'b00, reg_addr} == (`IC_IMR_OS        >> 2);
   assign ic_sr_en         = {2'b00, reg_addr} == (`IC_SR_OS         >> 2);
@@ -189,6 +207,7 @@ module apb_ucpd_if (
   ------------------------------------------------------------------------------*/
   assign ic_cfg1_we       = ic_cfg1_en       & wr_en;
   assign ic_cfg2_we       = ic_cfg2_en       & wr_en;
+  assign ic_jitter_we     = ic_jitter_en     & wr_en;
   assign ic_cr_we         = ic_cr_en         & wr_en;
   assign ic_imr_we        = ic_imr_en        & wr_en;
   assign ic_icr_we        = ic_icr_en        & wr_en;
@@ -211,6 +230,7 @@ module apb_ucpd_if (
 
   assign ic_cfg1_s    = ic_cfg1;
   assign ic_cfg2_s    = ic_cfg2;
+  assign ic_jitter_s  = ic_jitter;
   assign ic_cr_s      = ic_cr;
   assign ic_sr_s      = ic_sr;
   assign tx_mode      = ic_cr[1:0];
@@ -220,17 +240,52 @@ module apb_ucpd_if (
   /*------------------------------------------------------------------------------
   --  analog interface
   ------------------------------------------------------------------------------*/
+  generate
+    genvar i;
+    for (i = 0; i < 3; i=i+1)
+      begin : cc1_comp_jitter
+        apb_ucpd_jitter u_apb_ucpd_jitter (
+          .ic_clk    (ic_clk    ),
+          .ic_rst_n  (ic_rst_n  ),
+          .clk_freq  (clk_freq  ),
+          .det_us    (det_us    ),
+          .det_ms    (det_ms    ),
+          .jitter_in (cc1_compout[i] ),
+          .jitter_out(cc1_compout_jitter[i])
+        );
+      end
+  endgenerate
+
+  generate
+    genvar j;
+    for (j = 0; j < 3; j=j+1)
+      begin : cc2_comp_jitter
+        apb_ucpd_jitter u_apb_ucpd_jitter (
+          .ic_clk    (ic_clk    ),
+          .ic_rst_n  (ic_rst_n  ),
+          .clk_freq  (clk_freq  ),
+          .det_us    (det_us    ),
+          .det_ms    (det_ms    ),
+          .jitter_in (cc2_compout[j]),
+          .jitter_out(cc2_compout_jitter[j])
+        );
+      end
+  endgenerate
+
+  assign cc1_comp = jitter_en ? cc1_compout_jitter : cc1_compout;
+  assign cc2_comp = jitter_en ? cc2_compout_jitter : cc2_compout;
+
   always @(*)
     begin
       if(source_en)
-        case(cc1_compout)
+        case(cc1_comp)
           3'b001  : vstate_cc1 = 2'd0;
           3'b011  : vstate_cc1 = 2'd1;
           3'b111  : vstate_cc1 = 2'd2;
           default : vstate_cc1 = 2'd3;
         endcase
       else
-        case(cc1_compout)
+        case(cc1_comp)
           3'b000  : vstate_cc1 = 2'd0;
           3'b001  : vstate_cc1 = 2'd1;
           3'b011  : vstate_cc1 = 2'd2;
@@ -242,14 +297,14 @@ module apb_ucpd_if (
   always @(*)
     begin
       if(source_en)
-        case(cc2_compout)
+        case(cc2_comp)
           3'b001  : vstate_cc2 = 2'd0;
           3'b011  : vstate_cc2 = 2'd1;
           3'b111  : vstate_cc2 = 2'd2;
           default : vstate_cc2 = 2'd3;
         endcase
       else
-        case(cc2_compout)
+        case(cc2_comp)
           3'b000  : vstate_cc2 = 2'd0;
           3'b001  : vstate_cc2 = 2'd1;
           3'b011  : vstate_cc2 = 2'd2;
@@ -259,16 +314,16 @@ module apb_ucpd_if (
     end
 
   assign phy_cc1_com = ~ic_cr[6] & ucpden;
-  assign phy_cc2_com = ic_cr[6];
+  assign phy_cc2_com = ic_cr[6] & ucpden;
   assign cc1_det_en  = ~ic_cr[20] & ucpden;
   assign cc2_det_en  = ~ic_cr[21] & ucpden;
-  assign phy_en      = ic_cr[11:10];
-  assign set_c500    = (ic_cr[8:7] == 2'b01) ? 1'b1 : 1'b0;
-  assign set_c1500   = (ic_cr[8:7] == 2'b10) ? 1'b1 : 1'b0;
-  assign set_c3000   = (ic_cr[8:7] == 2'b11) ? 1'b1 : 1'b0;
-  assign set_pd      = ic_cr[9];
+  assign phy_en      = ic_cr[11:10] & {ucpden, ucpden};
+  assign set_c500    = ((ic_cr[8:7] == 2'b01) & ucpden) ? 1'b1 : 1'b0;
+  assign set_c1500   = ((ic_cr[8:7] == 2'b10) & ucpden) ? 1'b1 : 1'b0;
+  assign set_c3000   = ((ic_cr[8:7] == 2'b11) & ucpden) ? 1'b1 : 1'b0;
+  assign set_pd      = ic_cr[9] & ucpden;
   assign source_en   = ~ic_cr[9] & ucpden;
-  assign phy_rx_en   = ic_cr[5];
+  assign phy_rx_en   = ic_cr[5] & ucpden;
 
   // ----------------------------------------------------------
   // -- Synchronization registers for flags input from ic_clk domain
@@ -315,36 +370,6 @@ module apb_ucpd_if (
 
   assign tx_status_sync_red = (tx_status_sync & ~tx_status_sync_d);
   assign rx_status_sync_red = (rx_status_sync & ~rx_status_sync_d);
-  /*------------------------------------------------------------------------------
-  --  generate typec_evt1, typec_evt2 and its positive edge for SR
-  ------------------------------------------------------------------------------*/
-
-  // assign vstate_cc1_sync = vstate_cc1_d1;
-  // assign vstate_cc2_sync = vstate_cc2_d1;
-
-  // always @(posedge pclk or negedge presetn)
-  //   begin
-  //     if (presetn == 1'b0) begin
-  //       vstate_cc1_d0 <= 2'b0;
-  //       vstate_cc1_d1 <= 2'b0;
-  //     end
-  //     else begin
-  //       vstate_cc1_d0 <= cc1_compout;
-  //       vstate_cc1_d1 <= vstate_cc1_d0;
-  //     end
-  //   end
-
-  // always @(posedge pclk or negedge presetn)
-  //   begin
-  //     if (presetn == 1'b0) begin
-  //       vstate_cc2_d0 <= 2'b0;
-  //       vstate_cc2_d1 <= 2'b0;
-  //     end
-  //     else begin
-  //       vstate_cc2_d0 <= cc2_compout;
-  //       vstate_cc2_d1 <= vstate_cc2_d0;
-  //     end
-  //   end
 
   reg [1:0] vstate_cc1_d;
   reg [1:0] vstate_cc2_d;
@@ -421,6 +446,19 @@ module apb_ucpd_if (
         ic_cfg2 <= ipwdata;
     end
 
+  /*------------------------------------------------------------------------------
+  -- different st, IC_JITTER  addr=8'h08,det_ms [4:0], det_us [15:5], jitter_en [16]
+  -- apb clk_freq [17:22]
+  -- default 0x21_00A1 (det_ms=1, det_us=5, jitter_en=1, clk_freq=16)
+  ------------------------------------------------------------------------------*/
+  always @(posedge pclk or negedge presetn)
+    begin
+      if (presetn == 1'b0)
+        ic_jitter <= 32'h0021_00A1;
+      else if (ic_jitter_we == 1'b1 && ucpden == 1'b0)
+        ic_jitter <= ipwdata;
+    end
+
   // apb write UCPD control register (UCPD_CR)
   always @(posedge pclk or negedge presetn)
     begin
@@ -456,7 +494,36 @@ module apb_ucpd_if (
         ic_icr <= 32'b0;
       else if(ic_icr_we == 1'b1)
         ic_icr <= ipwdata;
+      else if(ic_icr[1])
+        ic_icr[1] <= 1'b0;
+      else if(ic_icr[2])
+        ic_icr[2] <= 1'b0;
+      else if(ic_icr[3])
+        ic_icr[3] <= 1'b0;
+      else if(ic_icr[4])
+        ic_icr[4] <= 1'b0;
+      else if(ic_icr[5])
+        ic_icr[5] <= 1'b0;
+      else if(ic_icr[6])
+        ic_icr[6] <= 1'b0;
+
+      else if(ic_icr[9])
+        ic_icr[9] <= 1'b0;
+      else if(ic_icr[10])
+        ic_icr[10] <= 1'b0;
+      else if(ic_icr[11])
+        ic_icr[11] <= 1'b0;
+      else if(ic_icr[12])
+        ic_icr[12] <= 1'b0;
+      else if(ic_icr[14])
+        ic_icr[14] <= 1'b0;
+      else if(ic_icr[15])
+        ic_icr[15] <= 1'b0;
+
+      else if(ic_icr[20])
+        ic_icr[20] <= 1'b0;
     end
+
 
   // apb write UCPD Tx Ordered Set Type Register (UCPD_TX_ORDSET)
   always @(posedge pclk or negedge presetn)
@@ -635,6 +702,7 @@ module apb_ucpd_if (
       case (1'b1)
         ic_cfg1_en       : iprdata  = ic_cfg1_s       ;
         ic_cfg2_en       : iprdata  = ic_cfg2_s       ;
+        ic_jitter_en     : iprdata  = ic_jitter_s     ;
         ic_cr_en         : iprdata  = ic_cr_s         ;
         ic_imr_en        : iprdata  = ic_imr_s        ;
         ic_sr_en         : iprdata  = ic_sr_s         ;

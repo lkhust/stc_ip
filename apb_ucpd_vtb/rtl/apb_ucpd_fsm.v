@@ -34,18 +34,21 @@ module apb_ucpd_fsm (
   input        tx_crst_flag    ,
   input        hrst_tx_en      ,
   output       bmc_en          ,
+  output       tx_pre_cmplt    ,
   output       tx_sop_cmplt    ,
   output       tx_wait_cmplt   ,
   output       tx_crc_cmplt    ,
   output       tx_data_cmplt   ,
   output       tx_sop_rst_cmplt,
   output       tx_eop_cmplt    ,
+  output       tx_bit5_cmplt   ,
   output       tx_msg_disc     ,
   output       tx_hrst_disc    ,
   output       txfifo_ld_en    ,
   output       cc_oen          ,
   output       dec_rxbit_en    ,
   output       txdr_req        ,
+  output       rx_idle_en      ,
   output       rx_pre_en       ,
   output       rx_sop_en       ,
   output       rx_data_en      ,
@@ -89,12 +92,12 @@ module apb_ucpd_fsm (
   reg [ 3:0] one_data_txbit_cnt;
   reg [ 9:0] txbyte_cnt        ;
   reg [15:0] txbit_cnt         ;
+  reg [ 7:0] tx5bit_cnt        ;
 
   //wires nets
   wire        trans_cmplt   ;
   wire        enc_txbit_en  ;
   wire [12:0] tx_paybit_size;
-  wire        tx_pre_cmplt  ;
   wire        tx_bit10_cmplt;
   wire        tx_und        ;
   wire        hrst_sent     ;
@@ -110,6 +113,7 @@ module apb_ucpd_fsm (
   assign rx_pre_en  = (rx_cur_state == RX_PRE);
   assign rx_sop_en  = (rx_cur_state == RX_SOP);
   assign rx_data_en = (rx_cur_state == RX_DATA);
+  assign rx_idle_en = (rx_cur_state == RX_IDLE);
 
   assign tx_und    = tx_status[6];
   assign hrst_sent = tx_status[5];
@@ -120,13 +124,13 @@ module apb_ucpd_fsm (
 
   assign tx_pre_cmplt     = pre_en && bit_clk_red && (txbit_cnt == `PRE_BIT_NUM);
   assign tx_sop_cmplt     = sop_en && bit_clk_red && (txbit_cnt == `SOP_BIT_NUM);
-  assign tx_data_cmplt    = data_en && tx_bit10_cmplt && (txbyte_cnt == tx_paybit_size);
-  assign tx_crc_cmplt     = crc_en  && bit_clk_red && (txbit_cnt == `CRC_BIT_NUM);
+  assign tx_data_cmplt    = data_en && ((tx_bit10_cmplt && (txbyte_cnt == tx_paybit_size)) || tx_bit5_cmplt);
+  assign tx_crc_cmplt     = crc_en  && bit_clk_red && ((txbit_cnt == `CRC_BIT_NUM) || tx_bit5_cmplt);
   assign tx_eop_cmplt     = eop_en && bit_clk_red && (txbit_cnt == `TX_BIT5_NUM);
   assign tx_wait_cmplt    = wait_en && ifrgap_en;
   assign tx_sop_rst_cmplt = tx_sop_cmplt && (tx_hrst_flag | tx_crst_flag);
   assign tx_bit10_cmplt   = bit_clk_red && (one_data_txbit_cnt == `TX_BIT10_NUM);
-  // assign tx_bit5_cmplt    = bit_clk_red && (txbit_cnt == `TX_BIT5_NUM);
+  assign tx_bit5_cmplt    = bit_clk_red && (tx5bit_cnt == `TX_BIT5_NUM) && tx_hrst_flag;
   assign txfifo_ld_en     = tx_sop_cmplt || (data_en && tx_bit10_cmplt && ~tx_data_cmplt);
   assign txdr_req         = data_en && (txbyte_cnt < tx_paybit_size); // reqest in vaild time windows
 
@@ -163,18 +167,15 @@ module apb_ucpd_fsm (
 
         TX_PRE :
           begin
-            if(trans_cmplt) begin
+            if(trans_cmplt)
               tx_nxt_state = TX_SOP;
-            end
             else
               tx_nxt_state = TX_PRE;
           end
 
         TX_SOP :
           begin
-            if(tx_hrst)
-              tx_nxt_state = TX_EOP;
-            else if(trans_cmplt) begin
+            if(trans_cmplt) begin
               if(tx_hrst_flag)
                 tx_nxt_state = TX_IDLE;
               else if(tx_crst_flag)
@@ -190,7 +191,7 @@ module apb_ucpd_fsm (
 
         TX_DATA :
           begin
-            if(tx_hrst | tx_und)
+            if((tx_hrst | tx_und) & tx_bit5_cmplt)
               tx_nxt_state = TX_EOP;
             else if(transmit_en) begin
               if(trans_cmplt)
@@ -204,7 +205,7 @@ module apb_ucpd_fsm (
 
         TX_CRC :
           begin
-            if(tx_hrst)
+            if(tx_hrst & tx_bit5_cmplt)
               tx_nxt_state = TX_EOP;
             else if(trans_cmplt)
               tx_nxt_state = TX_EOP;
@@ -214,9 +215,7 @@ module apb_ucpd_fsm (
 
         TX_EOP :
           begin
-            if(tx_hrst)
-              tx_nxt_state = TX_EOP;
-            else if(trans_cmplt)
+            if(trans_cmplt)
               tx_nxt_state = TX_WAIT;
             else
               tx_nxt_state = TX_EOP;
@@ -224,9 +223,7 @@ module apb_ucpd_fsm (
 
         TX_BIST :
           begin
-            if(tx_hrst)
-              tx_nxt_state = TX_IDLE;
-            else if(trans_cmplt) // TX_BIST finish
+            if(trans_cmplt) // TX_BIST finish
               tx_nxt_state = TX_IDLE;
             else
               tx_nxt_state = TX_BIST;
@@ -255,6 +252,18 @@ module apb_ucpd_fsm (
         txbit_cnt <= 16'b0;
       else if(bmc_en & bit_clk_red)
         txbit_cnt <= txbit_cnt+1;
+    end
+
+   always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        tx5bit_cnt <= 8'd0;
+      else if(trans_cmplt)
+        tx5bit_cnt <= 8'd0;
+      else if(tx_bit5_cmplt)
+        tx5bit_cnt <= 8'd0;
+      else if(bmc_en & bit_clk_red)
+        tx5bit_cnt <= tx5bit_cnt+1;
     end
 
   /*------------------------------------------------------------------------------

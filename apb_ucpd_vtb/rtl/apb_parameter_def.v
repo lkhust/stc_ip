@@ -1,5 +1,5 @@
 `ifndef RX_PRE_EDG
-  `define RX_PRE_EDG     192
+  `define RX_PRE_EDG     193
 `endif
 
 `ifndef PRE_BIT_NUM

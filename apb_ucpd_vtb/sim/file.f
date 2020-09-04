@@ -7,6 +7,7 @@
 ../rtl/apb_ucpd_bcm41.v
 ../rtl/apb_ucpd_bcm21.v
 ../rtl/apb_ucpd_bmc_filter.v
+../rtl/apb_ucpd_jitter.v
 ../rtl/apb_ucpd_if.v
 ../rtl/apb_ucpd_pcrc.v
 ../rtl/apb_ucpd_data_tx.v
