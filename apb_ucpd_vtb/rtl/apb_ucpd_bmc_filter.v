@@ -458,7 +458,7 @@ module apb_ucpd_bmc_filter (
         receive_en <= 1'b0;
       else if(training_en & phy_rx_en)
         receive_en <= 1'b1;
-      else if(receive_en & (eop_ok | (hrst_vld | crst_vld)))
+      else if(receive_en & (eop_ok | hrst_vld | crst_vld | rx_idle_en))
         receive_en <= 1'b0;
     end
 
