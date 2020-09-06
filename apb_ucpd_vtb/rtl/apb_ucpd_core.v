@@ -220,6 +220,7 @@ module apb_ucpd_core (
     .rx_byte_cnt  (rx_byte_cnt  ),
     .hrst_vld     (hrst_vld     ),
     .crst_vld     (crst_vld     ),
+    .rx_ordset_vld(rx_ordset_vld),
     .eop_ok       (eop_ok       ),
     .rx_byte      (rx_byte      )
   );
@@ -242,6 +243,7 @@ module apb_ucpd_core (
     .rx_sop_cmplt    (rx_sop_cmplt    ),
     .hrst_vld        (hrst_vld        ),
     .crst_vld        (crst_vld        ),
+    .rx_ordset_vld   (rx_ordset_vld   ),
     .tx_hrst_flag    (tx_hrst_flag    ),
     .tx_crst_flag    (tx_crst_flag    ),
     .hrst_tx_en      (hrst_tx_en      ),

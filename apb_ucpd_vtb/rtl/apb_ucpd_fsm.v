@@ -30,6 +30,7 @@ module apb_ucpd_fsm (
   input        rx_sop_cmplt    ,
   input        hrst_vld        ,
   input        crst_vld        ,
+  input        rx_ordset_vld   ,
   input        tx_hrst_flag    ,
   input        tx_crst_flag    ,
   input        hrst_tx_en      ,
@@ -323,10 +324,14 @@ module apb_ucpd_fsm (
 
         RX_PRE :
           begin
-            if(rx_pre_cmplt)
-              rx_nxt_state = RX_SOP;
+            if(ucpden & receive_en) begin
+              if(rx_pre_cmplt)
+                rx_nxt_state = RX_SOP;
+              else
+                rx_nxt_state = RX_PRE;
+            end
             else
-              rx_nxt_state = RX_PRE;
+              rx_nxt_state = RX_IDLE;
           end
 
         RX_SOP :
@@ -341,7 +346,7 @@ module apb_ucpd_fsm (
 
         RX_DATA :
           begin
-            if(eop_ok | hrst_vld | crst_vld )
+            if(eop_ok | hrst_vld | crst_vld | ~rx_ordset_vld)
               rx_nxt_state = RX_IDLE;
             else
               rx_nxt_state = RX_DATA;

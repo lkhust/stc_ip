@@ -336,31 +336,48 @@ module apb_ucpd_bmc_filter (
   //   );
 
   // according to sum ,to get 1UI for a bit duty at preamble, 1UI = sum/2*3/4
+  reg [1:0] training_en_r;
+  reg       training_dis ;
+  assign training_en_jitter = training_en_r[0]^training_en;
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
-      if(~ic_rst_n) begin
+      if(ic_rst_n == 1'b0)
+        training_en_r <= 2'b0;
+      else
+        training_en_r <= {training_en_r[0], training_en};
+    end
+
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(ic_rst_n == 1'b0)
+        training_dis <= 1'b0;
+      else if(rx_idle_en)
+        training_dis <= 1'b0;
+      else if(training_en_jitter & rx_pre_en)
+        training_dis <= 1'b1;
+    end
+
+  // according to sum ,to get 1UI for a bit duty at preamble, 1UI = sum/2*3/4
+  always @(posedge ucpd_clk or negedge ic_rst_n) begin
+    if(~ic_rst_n) begin
+      training_en <= 1'b0;
+      th_1UI      <= 11'b0;
+    end
+    else if(training_dis | dec_rxbit_en) begin
+      training_en <= 1'b0;
+      th_1UI      <= 11'b0;
+    end
+    else if(first_2bit_end) begin
+      if(((UI_cntA < UI_cntC) && (UI_cntB < UI_cntC)) || ((UI_cntA > UI_cntB) && (UI_cntA > UI_cntC))) begin
+        training_en <= 1'b1;
+        th_1UI      <= ((UI_cntA+UI_cntB+UI_cntC)*3)>>3; // (a+b+c)/2*3/4
+      end
+      else if((UI_cntB > UI_cntC) && (UI_cntB > UI_cntA)) begin // b>c,b>a, standing for lost begin 1
         training_en <= 1'b0;
         th_1UI      <= 11'b0;
-      end
-      else if(dec_rxbit_en) begin
-        training_en <= 1'b0;
-        th_1UI      <= 11'b0;
-      end
-      else if(first_2bit_end) begin
-        if((UI_cntA < UI_cntC) && (UI_cntB < UI_cntC)) begin
-          training_en <= 1'b1;
-          th_1UI      <= ((UI_cntA+UI_cntB+UI_cntC)*3)>>3; // (a+b+c)/2*3/4
-        end
-        else if((UI_cntA > UI_cntB) && (UI_cntA > UI_cntC)) begin
-          training_en <= 1'b1;
-          th_1UI      <= ((UI_cntA+UI_cntB+UI_cntC)*3)>>3; // (a+b+c)/2*3/4
-        end
-        else if((UI_cntB > UI_cntC) && (UI_cntB > UI_cntA)) begin // b>c,b>a, standing for lost begin 1
-          training_en <= 1'b0;
-          th_1UI      <= 11'b0;
-        end
       end
     end
+  end
 
   /*------------------------------------------------------------------------------
   --  generate recrice bit

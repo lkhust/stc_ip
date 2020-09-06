@@ -35,6 +35,7 @@ module apb_ucpd_data_rx (
   output reg [9:0] rx_byte_cnt  ,
   output reg       hrst_vld     ,
   output reg       crst_vld     ,
+  output           rx_ordset_vld,
   output reg       eop_ok       ,
   output reg [7:0] rx_byte
 );
@@ -65,6 +66,13 @@ module apb_ucpd_data_rx (
   reg        sop1_deg_vld        ;
   reg        sop2_vld            ;
   reg        sop2_deg_vld        ;
+  reg        sop0_vld_nxt        ;
+  reg        sop1_vld_nxt        ;
+  reg        sop1_deg_vld_nxt    ;
+  reg        sop2_vld_nxt        ;
+  reg        sop2_deg_vld_nxt    ;
+  reg        crst_vld_nxt        ;
+  reg        hrst_vld_nxt        ;
   reg        rx_bit5_cmplt_d     ;
   reg        rx_sop_en_d         ;
   reg [ 1:0] rx_sop_half_byte_cnt;
@@ -79,13 +87,12 @@ module apb_ucpd_data_rx (
   wire       rx_msg_end       ;
   wire       rx_err           ;
   wire       rx_hrst_det      ;
-  wire       rx_ordset_vld    ;
   wire       rx_full          ;
   wire       sop_ex1_vld      ;
   wire       sop_ex2_vld      ;
   wire [7:0] rx_byte_nxt      ;
   wire [3:0] sop_num_ok_nxt   ;
-  wire [7:0] rx_ordset_vld_nxt;
+  wire [7:0] rx_ordset_vld_ord;
 
   // todo
   assign sop_ex1_vld = 1'b0;
@@ -103,7 +110,7 @@ module apb_ucpd_data_rx (
   assign rxfifo_wr_en      = rx_1byte_cmplt_d & ~rx_1byte_cmplt;
   assign rx_byte_nxt       = ~rx_5bits_cnt[0] ? rx_data : rx_byte;
   assign sop_num_ok_nxt    = {sop_1st_ok,sop_2st_ok,sop_3st_ok,sop_4st_ok};
-  assign rx_ordset_vld_nxt = {sop_ex2_vld,sop_ex1_vld,crst_vld,sop2_deg_vld,sop1_deg_vld,sop2_vld,sop1_vld,sop0_vld};
+  assign rx_ordset_vld_ord = {sop_ex2_vld,sop_ex1_vld,crst_vld,sop2_deg_vld,sop1_deg_vld,sop2_vld,sop1_vld,sop0_vld};
 
   always @(posedge ic_clk or negedge ic_rst_n)
     begin
@@ -111,6 +118,44 @@ module apb_ucpd_data_rx (
         rx_byte <= 8'b0;
       else
         rx_byte <= rx_byte_nxt;
+    end
+
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
+        sop0_vld     <= 1'b0; // SOP code detected in receiver
+        sop1_vld     <= 1'b0; // SOP' code detected in receiver
+        sop1_deg_vld <= 1'b0; // SOP'_Debug detected in receiver
+        sop2_vld     <= 1'b0; // SOP'' code detected in receiver
+        sop2_deg_vld <= 1'b0; // SOP''_Debug detected in receiver
+        crst_vld     <= 1'b0; // Cable Reset detected in receiver
+        hrst_vld     <= 1'b0; // Hard Reset detected in receiver
+      end
+      else if(rx_idle_en) begin
+        sop0_vld     <= 1'b0;
+        sop1_vld     <= 1'b0;
+        sop1_deg_vld <= 1'b0;
+        sop2_vld     <= 1'b0;
+        sop2_deg_vld <= 1'b0;
+        crst_vld     <= 1'b0;
+        hrst_vld     <= 1'b0;
+      end
+      else begin
+        if(hrst_vld_nxt)
+          hrst_vld <= 1'b1;
+        else if(crst_vld_nxt)
+          crst_vld <= 1'b1;
+        else if(sop0_vld_nxt)
+          sop0_vld = 1'b1;
+        else if(sop1_vld_nxt)
+          sop1_vld = 1'b1;
+         else if(sop2_vld_nxt)
+          sop2_vld = 1'b1;
+        else if(sop1_deg_vld_nxt)
+          sop1_deg_vld = 1'b1;
+        else if(sop2_deg_vld_nxt)
+          sop2_deg_vld = 1'b1;
+      end
     end
 
   always @(posedge ic_clk or negedge ic_rst_n)
@@ -268,8 +313,8 @@ module apb_ucpd_data_rx (
     begin
       if(~ic_rst_n)
         rx_ordset_det <= 3'd0;
-      else if(rx_sop_cmplt_d) begin
-        case(rx_ordset_vld_nxt & rx_ordset_en)
+      else begin
+        case(rx_ordset_vld_ord & rx_ordset_en)
           8'b0000_0001 : rx_ordset_det <= 3'd0; // 0x0: SOP code detected in receiver
           8'b0000_0010 : rx_ordset_det <= 3'd1; // 0x1: SOP' code detected in receiver
           8'b0000_0100 : rx_ordset_det <= 3'd2; // 0x2: SOP'' code detected in receiver
@@ -424,69 +469,69 @@ module apb_ucpd_data_rx (
   --  Rx ordered set code detected
   ------------------------------------------------------------------------------*/
   always @(*) begin
-    sop0_vld     = 1'b0; // SOP code detected in receiver
-    sop1_vld     = 1'b0; // SOP' code detected in receiver
-    sop1_deg_vld = 1'b0; // SOP'_Debug detected in receiver
-    sop2_vld     = 1'b0; // SOP'' code detected in receiver
-    sop2_deg_vld = 1'b0; // SOP''_Debug detected in receiver
-    crst_vld     = 1'b0; // Cable Reset detected in receiver
-    hrst_vld     = 1'b0; // Hard Reset detected in receiver
+    sop0_vld_nxt     = 1'b0; // SOP code detected in receiver
+    sop1_vld_nxt     = 1'b0; // SOP' code detected in receiver
+    sop1_deg_vld_nxt = 1'b0; // SOP'_Debug detected in receiver
+    sop2_vld_nxt     = 1'b0; // SOP'' code detected in receiver
+    sop2_deg_vld_nxt = 1'b0; // SOP''_Debug detected in receiver
+    crst_vld_nxt     = 1'b0; // Cable Reset detected in receiver
+    hrst_vld_nxt     = 1'b0; // Hard Reset detected in receiver
     if(rx_sop_en_d && rx_sop_cmplt_d) begin
       if(((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_1)) |
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_1) & (sop_k4_code == `SYNC_2)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_2)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_2)))
-      sop0_vld = 1'b1;
+      sop0_vld_nxt = 1'b1;
       else
-        sop0_vld = 1'b0;
+        sop0_vld_nxt = 1'b0;
 
       if(((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_1) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_3)))
-      sop1_vld = 1'b1;
+      sop1_vld_nxt = 1'b1;
       else
-        sop1_vld = 1'b0;
+        sop1_vld_nxt = 1'b0;
 
       if(((sop_k1_code == `SYNC_1) & (sop_k2_code == `RST_2) & (sop_k3_code == `RST_2 )) |
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `RST_2) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `RST_2) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `RST_2 ) & (sop_k3_code == `RST_2) & (sop_k4_code == `SYNC_3)))
-      sop1_deg_vld = 1'b1;
+      sop1_deg_vld_nxt = 1'b1;
       else
-        sop1_deg_vld = 1'b0;
+        sop1_deg_vld_nxt = 1'b0;
 
       if(((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_3) & (sop_k3_code == `SYNC_1)) |
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `SYNC_3) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `SYNC_3) & (sop_k3_code == `SYNC_1) & (sop_k4_code == `SYNC_3)))
-      sop2_vld = 1'b1;
+      sop2_vld_nxt = 1'b1;
       else
-        sop2_vld = 1'b0;
+        sop2_vld_nxt = 1'b0;
 
       if(((sop_k1_code == `SYNC_1) & (sop_k2_code == `RST_2 ) & (sop_k3_code == `SYNC_3)) |
         ((sop_k1_code == `SYNC_1) & (sop_k2_code == `RST_2 ) & (sop_k4_code == `SYNC_2)) |
         ((sop_k1_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_2)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `SYNC_3) & (sop_k4_code == `SYNC_2)))
-      sop2_deg_vld = 1'b1;
+      sop2_deg_vld_nxt = 1'b1;
       else
-        sop2_deg_vld = 1'b0;
+        sop2_deg_vld_nxt = 1'b0;
 
       if(((sop_k1_code == `RST_1 )  & (sop_k2_code == `SYNC_1) & (sop_k3_code == `RST_1 )) |
         ((sop_k1_code == `RST_1 ) & (sop_k2_code == `SYNC_1) & (sop_k4_code == `SYNC_3)) |
         ((sop_k1_code == `RST_1 ) & (sop_k3_code == `RST_1 ) & (sop_k4_code == `SYNC_3)) |
         ((sop_k2_code == `SYNC_1) & (sop_k3_code == `RST_1 ) & (sop_k4_code == `SYNC_3)))
-      crst_vld = 1'b1;
+      crst_vld_nxt = 1'b1;
       else
-        crst_vld = 1'b0;
+        crst_vld_nxt = 1'b0;
 
       if(((sop_k1_code == `RST_1 ) & (sop_k2_code == `RST_1) & (sop_k3_code == `RST_1)) |
         ((sop_k1_code == `RST_1 ) & (sop_k2_code == `RST_1) & (sop_k4_code == `RST_2)) |
         ((sop_k1_code == `RST_1 ) & (sop_k3_code == `RST_1) & (sop_k4_code == `RST_2)) |
         ((sop_k2_code == `RST_1 ) & (sop_k3_code == `RST_1) & (sop_k4_code == `RST_2)))
-      hrst_vld = 1'b1;
+      hrst_vld_nxt = 1'b1;
       else
-        hrst_vld = 1'b0;
+        hrst_vld_nxt = 1'b0;
     end
   end
 
