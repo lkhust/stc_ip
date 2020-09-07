@@ -92,7 +92,7 @@ module apb_ucpd_data_rx (
   wire       sop_ex2_vld      ;
   wire [7:0] rx_byte_nxt      ;
   wire [3:0] sop_num_ok_nxt   ;
-  wire [7:0] rx_ordset_vld_ord;
+  wire [8:0] rx_ordset_vld_ord;
 
   // todo
   assign sop_ex1_vld = 1'b0;
@@ -110,7 +110,7 @@ module apb_ucpd_data_rx (
   assign rxfifo_wr_en      = rx_1byte_cmplt_d & ~rx_1byte_cmplt;
   assign rx_byte_nxt       = ~rx_5bits_cnt[0] ? rx_data : rx_byte;
   assign sop_num_ok_nxt    = {sop_1st_ok,sop_2st_ok,sop_3st_ok,sop_4st_ok};
-  assign rx_ordset_vld_ord = {sop_ex2_vld,sop_ex1_vld,crst_vld,sop2_deg_vld,sop1_deg_vld,sop2_vld,sop1_vld,sop0_vld};
+  assign rx_ordset_vld_ord = {sop_ex2_vld,sop_ex1_vld,sop2_deg_vld,sop1_deg_vld,crst_vld,1'b0,sop2_vld,sop1_vld,sop0_vld};
 
   always @(posedge ic_clk or negedge ic_rst_n)
     begin
@@ -141,7 +141,7 @@ module apb_ucpd_data_rx (
         hrst_vld     <= 1'b0;
       end
       else begin
-        if(hrst_vld_nxt)
+        if(hrst_vld_nxt & rx_ordset_en[3])
           hrst_vld <= 1'b1;
         else if(crst_vld_nxt)
           crst_vld <= 1'b1;
@@ -309,21 +309,24 @@ module apb_ucpd_data_rx (
   /*------------------------------------------------------------------------------
   --  when rx_sop_cmplt_d valid registe RX_ORDSET(RXORDSET[2:0])
   ------------------------------------------------------------------------------*/
+  wire [8:0] rx_ordset_ord;
+  assign rx_ordset_ord = rx_ordset_vld_ord & rx_ordset_en;
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
       if(~ic_rst_n)
         rx_ordset_det <= 3'd0;
       else begin
-        case(rx_ordset_vld_ord & rx_ordset_en)
-          8'b0000_0001 : rx_ordset_det <= 3'd0; // 0x0: SOP code detected in receiver
-          8'b0000_0010 : rx_ordset_det <= 3'd1; // 0x1: SOP' code detected in receiver
-          8'b0000_0100 : rx_ordset_det <= 3'd2; // 0x2: SOP'' code detected in receiver
-          8'b0000_1000 : rx_ordset_det <= 3'd3; // 0x3: SOP'_Debug detected in receiver
-          8'b0001_0000 : rx_ordset_det <= 3'd4; // 0x4: SOP''_Debug detected in receiver
-          8'b0010_0000 : rx_ordset_det <= 3'd5; // 0x5: Cable Reset detected in receiver
-          8'b0100_0000 : rx_ordset_det <= 3'd6; // 0x6: SOP extension#1 detected in receiver
-          8'b1000_0000 : rx_ordset_det <= 3'd7; // 0x7: SOP extension#2 detected in receiver
-          default      : rx_ordset_det <= 3'd0;
+        case(1'b1)
+          rx_ordset_ord[0] : rx_ordset_det <= 3'd0; // 0x0: 0bxxxxxxxx1: SOP detect enabled
+          rx_ordset_ord[1] : rx_ordset_det <= 3'd1; // 0x1: 0bxxxxxxx1x: SOP' detect enabled
+          rx_ordset_ord[2] : rx_ordset_det <= 3'd2; // 0x2: 0bxxxxxx1xx: SOP'' detect enabled
+          // rx_ordset_ord[3] : rx_ordset_det <= 3'd3; // 0bxxxxx1xxx: Hard Reset detect enabled
+          rx_ordset_ord[4] : rx_ordset_det <= 3'd3; // 0bxxxx1xxxx: Cable Detect reset enabled
+          rx_ordset_ord[5] : rx_ordset_det <= 3'd4; // 0bxxx1xxxxx: SOP'_Debug enabled
+          rx_ordset_ord[6] : rx_ordset_det <= 3'd5; // 0bxx1xxxxxx: SOP''_Debug enabled
+          rx_ordset_ord[7] : rx_ordset_det <= 3'd6; // 0bx1xxxxxxx: SOP extension#1 enabled
+          rx_ordset_ord[8] : rx_ordset_det <= 3'd7; // 0b1xxxxxxxx: SOP extension#2 enabled
+          default          : rx_ordset_det <= 3'd0;
         endcase
       end
     end
