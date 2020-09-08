@@ -83,33 +83,32 @@ module apb_ucpd_data_rx (
   reg        rx_1byte_cmplt_d    ;
   reg        rx_sop_cmplt_d      ;
   reg [ 1:0] rx_hafbyte_cnt      ;
-  reg [7:0] rx_byte_r1;
-  reg [7:0] rx_byte_r2;
-  reg [7:0] rx_byte_r3;
-  reg [7:0] rx_byte_r4;
-  reg [7:0] rx_byte;
-  reg rx_byte_vld;
-  reg rx_1byte_cmplt_red_d;
-  reg [9:0] rx_byte_cnt  ;
+  reg [ 7:0] rx_byte_r1          ;
+  reg [ 7:0] rx_byte_r2          ;
+  reg [ 7:0] rx_byte_r3          ;
+  reg [ 7:0] rx_byte_r4          ;
+  reg [ 7:0] rx_byte             ;
+  reg        rx_byte_vld         ;
+  reg        rx_1byte_cmplt_red_d;
+  reg [ 9:0] rx_byte_cnt         ;
 
   // wire
-  wire       rx_msg_end       ;
-  wire       rx_err           ;
-  wire       rx_hrst_det      ;
-  wire       rx_full          ;
-  wire       sop_ex1_vld      ;
-  wire       sop_ex2_vld      ;
-  wire [7:0] rx_byte_nxt      ;
-  wire [3:0] sop_num_ok_nxt   ;
-  wire [8:0] rx_ordset_vld_ord;
+  wire       rx_msg_end        ;
+  wire       rx_err            ;
+  wire       rx_hrst_det       ;
+  wire       rx_full           ;
+  wire       sop_ex1_vld       ;
+  wire       sop_ex2_vld       ;
+  wire [7:0] rx_byte_nxt       ;
+  wire [3:0] sop_num_ok_nxt    ;
+  wire [8:0] rx_ordset_vld_ord ;
   wire [9:0] rx_byte_no_crc_cnt;
-
 
   // todo
   assign sop_ex1_vld = 1'b0;
   assign sop_ex2_vld = 1'b0;
 
-  assign rxfifo_wr_data    = rx_1byte_cmplt_red_d & rx_byte_vld;
+  assign rxfifo_wr_data     = rx_1byte_cmplt_red_d & rx_byte_vld;
   assign rx_paysize         = rx_byte_no_crc_cnt;
   assign rx_byte_to_crc     = rx_byte;
   assign rx_byte_no_crc_cnt = rx_byte_vld ? rx_byte_cnt-4 : 10'd0;
@@ -269,6 +268,7 @@ module apb_ucpd_data_rx (
         rx_data[7:4] = decode_4b;
     end
 
+  ///      under code for ucpd clk domain  /////
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin
       if(~ic_rst_n)

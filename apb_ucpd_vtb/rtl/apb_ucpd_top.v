@@ -56,7 +56,7 @@ module apb_ucpd_top (
   wire [ 6:0] tx_status   ;
   wire [ 5:0] rx_status   ;
   wire [ 6:0] rx_ordset   ;
-  wire [ 9:0] rx_paysize ;
+  wire [ 9:0] rx_paysize  ;
   wire [ 7:0] rx_data     ;
   wire        hrst_vld    ;
   wire        tx_hrst     ;
@@ -75,8 +75,6 @@ module apb_ucpd_top (
   assign cc_in       = phy_cc1_com ? cc1_datai : cc2_datai;
   assign cc1_dataoen = phy_cc1_com ? cc_oen : 1'b0;
   assign cc2_dataoen = phy_cc2_com ? cc_oen : 1'b0;
-  // assign cc1_datao   = phy_cc1_com ? cc_out : 1'b0;
-  // assign cc2_datao   = phy_cc2_com ? cc_out : 1'b0;
   assign cc1_datao   = (phy_cc1_com & cc_oen) ? cc_out : 1'bz;
   assign cc2_datao   = (phy_cc2_com & cc_oen) ? cc_out : 1'bz;
 

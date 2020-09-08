@@ -42,7 +42,7 @@ module apb_ucpd_if (
   input      [ 6:0] tx_status   ,
   input      [ 5:0] rx_status   ,
   input      [ 6:0] rx_ordset   ,
-  input      [ 9:0] rx_paysize ,
+  input      [ 9:0] rx_paysize  ,
   input      [ 7:0] rx_data     ,
   input             hrst_vld    ,
   input      [ 2:0] cc1_compout , // SR.17:16  TYPEC_VSTATE_CC1
@@ -523,7 +523,6 @@ module apb_ucpd_if (
       else if(ic_icr[20])
         ic_icr[20] <= 1'b0;
     end
-
 
   // apb write UCPD Tx Ordered Set Type Register (UCPD_TX_ORDSET)
   always @(posedge pclk or negedge presetn)
