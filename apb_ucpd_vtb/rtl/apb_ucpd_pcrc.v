@@ -461,7 +461,7 @@ endgenerate
 
   wire [31:0] data_in_32;
   assign data_in_32 = {data_in_r1, data_in_r2, data_in_r3,data_in_r4};
-  assign crc_ok     = init_n ? data_in_32 == crc_out_r4 : 1'b0;
+  assign crc_ok     = init_n & (data_in_32 == crc_out_r4) ? 1'b1 : 1'b0;
 
    assign crc_out_int = crc_out_rg ^ reset_crc_reg ;
 

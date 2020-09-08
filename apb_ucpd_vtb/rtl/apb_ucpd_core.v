@@ -24,13 +24,14 @@ module apb_ucpd_core (
   output [ 6:0] tx_status   ,
   output [ 5:0] rx_status   ,
   output [ 6:0] rx_ordset   ,
-  output [ 9:0] rx_byte_cnt ,
-  output [ 7:0] rx_byte     ,
+  output [ 9:0] rx_paysize ,
+  output [ 7:0] rx_data     ,
   output        hrst_vld    ,
   output        ic_cc_out   ,
   output        cc_oen
 );
 
+  wire [ 7:0] rx_byte     ;
   wire        eop_ok          ;
   wire        ucpd_clk        ;
   wire        bit_clk_red     ;
@@ -87,6 +88,7 @@ module apb_ucpd_core (
   wire        rx_sop_en       ;
   wire        rx_data_en      ;
   wire        rx_idle_en      ;
+  wire [7:0] rx_byte_no_crc   ;
 
   assign ic_cc_in = cc_in;
   assign data_in  = receive_en ? rx_byte : ic_txdr;
@@ -95,6 +97,7 @@ module apb_ucpd_core (
   assign crc_in   = crc_tx_out;
   assign drain    = 1'b0;
   assign ld_crc_n = 1'b1;
+  assign rx_data  = rx_byte_no_crc;
 
   apb_ucpd_clk_gen u_apb_ucpd_clk_gen (
     .ic_clk          (ic_clk          ),
@@ -217,12 +220,13 @@ module apb_ucpd_core (
     .rx_status    (rx_status    ),
     .rx_ordset    (rx_ordset    ),
     .rxfifo_wr_en (rxfifo_wr_en ),
-    .rx_byte_cnt  (rx_byte_cnt  ),
+    .rx_paysize  (rx_paysize  ),
     .hrst_vld     (hrst_vld     ),
     .crst_vld     (crst_vld     ),
     .rx_ordset_vld(rx_ordset_vld),
     .eop_ok       (eop_ok       ),
-    .rx_byte      (rx_byte      )
+    .rx_byte_no_crc(rx_byte_no_crc),
+    .rx_byte_to_crc (rx_byte      )
   );
 
   apb_ucpd_fsm u_apb_ucpd_fsm (

@@ -56,8 +56,8 @@ module apb_ucpd_top (
   wire [ 6:0] tx_status   ;
   wire [ 5:0] rx_status   ;
   wire [ 6:0] rx_ordset   ;
-  wire [ 9:0] rx_byte_cnt ;
-  wire [ 7:0] rx_byte     ;
+  wire [ 9:0] rx_paysize ;
+  wire [ 7:0] rx_data     ;
   wire        hrst_vld    ;
   wire        tx_hrst     ;
   wire        rxdr_rd     ;
@@ -110,8 +110,8 @@ module apb_ucpd_top (
     .tx_status   (tx_status   ),
     .rx_status   (rx_status   ),
     .rx_ordset   (rx_ordset   ),
-    .rx_byte_cnt (rx_byte_cnt ),
-    .rx_byte     (rx_byte     ),
+    .rx_paysize  (rx_paysize  ),
+    .rx_data     (rx_data     ),
     .hrst_vld    (hrst_vld    ),
     .cc1_compout (cc1_compout ),
     .cc2_compout (cc2_compout ),
@@ -172,8 +172,8 @@ module apb_ucpd_top (
     .tx_status   (tx_status   ),
     .rx_status   (rx_status   ),
     .rx_ordset   (rx_ordset   ),
-    .rx_byte_cnt (rx_byte_cnt ),
-    .rx_byte     (rx_byte     ),
+    .rx_paysize  (rx_paysize  ),
+    .rx_data     (rx_data     ),
     .hrst_vld    (hrst_vld    ),
     .ic_cc_out   (ic_cc_out   ),
     .cc_oen      (cc_oen      )

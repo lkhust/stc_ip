@@ -42,8 +42,8 @@ module apb_ucpd_if (
   input      [ 6:0] tx_status   ,
   input      [ 5:0] rx_status   ,
   input      [ 6:0] rx_ordset   ,
-  input      [ 9:0] rx_byte_cnt ,
-  input      [ 7:0] rx_byte     ,
+  input      [ 9:0] rx_paysize ,
+  input      [ 7:0] rx_data     ,
   input             hrst_vld    ,
   input      [ 2:0] cc1_compout , // SR.17:16  TYPEC_VSTATE_CC1
   input      [ 2:0] cc2_compout , // SR.19:18  TYPEC_VSTATE_CC2
@@ -162,8 +162,8 @@ module apb_ucpd_if (
 
   assign hard_rst       = tx_status[5];
   assign ic_rx_ordset_s = {{25{1'b0}}, rx_ordset};
-  assign ic_rx_paysz_s  = {{22{1'b0}}, rx_byte_cnt};
-  assign ic_rxdr_s      = {{24{1'b0}}, rx_byte};
+  assign ic_rx_paysz_s  = {{22{1'b0}}, rx_paysize};
+  assign ic_rxdr_s      = {{24{1'b0}}, rx_data};
 
   assign ucpd_intr    = |(ic_imr & ic_sr);
   assign txdr_we      = (ic_txdr_we == 1'b1 && ucpden);

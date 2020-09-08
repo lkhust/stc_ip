@@ -14,30 +14,31 @@
 -- =====================================================================
 */
 module apb_ucpd_data_rx (
-  input            ic_clk       , // processor clock
-  input            ucpd_clk     ,
-  input            ic_rst_n     , // asynchronous reset, active low
-  input            rx_bit5_cmplt,
-  input            rx_bit_cmplt ,
-  input            rx_idle_en   ,
-  input            rx_pre_en    ,
-  input            rx_sop_en    ,
-  input            rx_data_en   ,
-  input            rxdr_rd      ,
-  input            decode_bmc   ,
-  input            crc_ok       ,
-  input            dec_rxbit_en ,
-  input      [8:0] rx_ordset_en ,
-  output           rx_sop_cmplt ,
-  output     [5:0] rx_status    ,
-  output     [6:0] rx_ordset    ,
-  output           rxfifo_wr_en ,
-  output reg [9:0] rx_byte_cnt  ,
-  output reg       hrst_vld     ,
-  output reg       crst_vld     ,
-  output           rx_ordset_vld,
-  output reg       eop_ok       ,
-  output reg [7:0] rx_byte
+  input            ic_clk          , // processor clock
+  input            ucpd_clk        ,
+  input            ic_rst_n        , // asynchronous reset, active low
+  input            rx_bit5_cmplt   ,
+  input            rx_bit_cmplt    ,
+  input            rx_idle_en      ,
+  input            rx_pre_en       ,
+  input            rx_sop_en       ,
+  input            rx_data_en      ,
+  input            rxdr_rd         ,
+  input            decode_bmc      ,
+  input            crc_ok          ,
+  input            dec_rxbit_en    ,
+  input      [8:0] rx_ordset_en    ,
+  output           rx_sop_cmplt    ,
+  output     [5:0] rx_status       ,
+  output     [6:0] rx_ordset       ,
+  output           rxfifo_wr_en    ,
+  output  [9:0] rx_paysize     ,
+  output reg       hrst_vld        ,
+  output reg       crst_vld        ,
+  output           rx_ordset_vld   ,
+  output reg       eop_ok          ,
+  output  [7:0] rx_byte_no_crc,
+  output     [7:0] rx_byte_to_crc
 );
 
   // ----------------------------------------------------------
@@ -82,6 +83,14 @@ module apb_ucpd_data_rx (
   reg        rx_1byte_cmplt_d    ;
   reg        rx_sop_cmplt_d      ;
   reg [ 1:0] rx_hafbyte_cnt      ;
+  reg [7:0] rx_byte_r1;
+  reg [7:0] rx_byte_r2;
+  reg [7:0] rx_byte_r3;
+  reg [7:0] rx_byte_r4;
+  reg [7:0] rx_byte;
+  reg rx_byte_vld;
+  reg rx_1byte_cmplt_red_d;
+  reg [9:0] rx_byte_cnt  ;
 
   // wire
   wire       rx_msg_end       ;
@@ -93,24 +102,54 @@ module apb_ucpd_data_rx (
   wire [7:0] rx_byte_nxt      ;
   wire [3:0] sop_num_ok_nxt   ;
   wire [8:0] rx_ordset_vld_ord;
+  wire [9:0] rx_byte_no_crc_cnt;
+
 
   // todo
   assign sop_ex1_vld = 1'b0;
   assign sop_ex2_vld = 1'b0;
 
-  assign rx_ovrflow        = rxfifo_full & rxfifo_wr_en & rx_data_en;
-  assign rx_err            = eop_ok & ~crc_ok;
-  assign rx_msg_end        = eop_ok;
-  assign rx_hrst_det       = hrst_vld;
-  assign rx_ordset_vld     = sop0_vld | sop1_vld | sop2_vld | sop1_deg_vld | sop2_deg_vld | crst_vld;
-  assign rx_full           = rxfifo_full & rx_data_en;
-  assign rx_status         = {rx_err,rx_msg_end,rx_ovrflow,rx_hrst_det,rx_ordset_vld,rx_full};
-  assign rx_ordset         = {rx_sop_invld_num,rx_sop_3of4,rx_ordset_det};
-  assign rx_sop_cmplt      = rx_bit5_cmplt && (rx_sop_half_byte_cnt == `SOP_HBYTE_NUM-1);
-  assign rxfifo_wr_en      = rx_1byte_cmplt_d & ~rx_1byte_cmplt;
-  assign rx_byte_nxt       = ~rx_5bits_cnt[0] ? rx_data : rx_byte;
-  assign sop_num_ok_nxt    = {sop_1st_ok,sop_2st_ok,sop_3st_ok,sop_4st_ok};
-  assign rx_ordset_vld_ord = {sop_ex2_vld,sop_ex1_vld,sop2_deg_vld,sop1_deg_vld,crst_vld,1'b0,sop2_vld,sop1_vld,sop0_vld};
+  assign rxfifo_wr_data    = rx_1byte_cmplt_red_d & rx_byte_vld;
+  assign rx_paysize         = rx_byte_no_crc_cnt;
+  assign rx_byte_to_crc     = rx_byte;
+  assign rx_byte_no_crc_cnt = rx_byte_vld ? rx_byte_cnt-4 : 10'd0;
+  assign rx_byte_no_crc     = rx_byte_r4;
+  assign rx_ovrflow         = rxfifo_full & rxfifo_wr_data & rx_data_en;
+  assign rx_err             = eop_ok & ~crc_ok;
+  assign rx_msg_end         = eop_ok;
+  assign rx_hrst_det        = hrst_vld;
+  assign rx_ordset_vld      = sop0_vld | sop1_vld | sop2_vld | sop1_deg_vld | sop2_deg_vld | crst_vld;
+  assign rx_full            = rxfifo_full & rx_data_en;
+  assign rx_status          = {rx_err,rx_msg_end,rx_ovrflow,rx_hrst_det,rx_ordset_vld,rx_full};
+  assign rx_ordset          = {rx_sop_invld_num,rx_sop_3of4,rx_ordset_det};
+  assign rx_sop_cmplt       = rx_bit5_cmplt && (rx_sop_half_byte_cnt == `SOP_HBYTE_NUM-1);
+  assign rxfifo_wr_en       = rx_1byte_cmplt_d & ~rx_1byte_cmplt;
+  assign rx_1byte_cmplt_red = ~rx_1byte_cmplt_d & rx_1byte_cmplt;
+  assign rx_byte_nxt        = ~rx_5bits_cnt[0] ? rx_data : rx_byte;
+  assign sop_num_ok_nxt     = {sop_1st_ok,sop_2st_ok,sop_3st_ok,sop_4st_ok};
+  assign rx_ordset_vld_ord  = {sop_ex2_vld,sop_ex1_vld,sop2_deg_vld,sop1_deg_vld,crst_vld,1'b0,sop2_vld,sop1_vld,sop0_vld};
+
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n) begin
+        rx_byte_r1 <= 8'b0;
+        rx_byte_r2 <= 8'b0;
+        rx_byte_r3 <= 8'b0;
+        rx_byte_r4 <= 8'b0;
+      end
+      else if(rx_idle_en) begin
+        rx_byte_r1 <= 8'b0;
+        rx_byte_r2 <= 8'b0;
+        rx_byte_r3 <= 8'b0;
+        rx_byte_r4 <= 8'b0;
+      end
+      else if(rx_1byte_cmplt_red) begin
+        rx_byte_r1 <= rx_byte;
+        rx_byte_r2 <= rx_byte_r1;
+        rx_byte_r3 <= rx_byte_r2;
+        rx_byte_r4 <= rx_byte_r3;
+      end
+    end
 
   always @(posedge ic_clk or negedge ic_rst_n)
     begin
@@ -180,12 +219,22 @@ module apb_ucpd_data_rx (
         rx_byte_cnt <= rx_byte_cnt+1;
     end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n)
+  always @(posedge ic_clk or negedge ic_rst_n)
     begin
       if(~ic_rst_n)
-        rx_data_en_d <= 1'b0;
+        rx_byte_vld <= 1'b0;
+      else if(rx_byte_cnt >= 'd4)
+        rx_byte_vld <= 1'b1;
       else
-        rx_data_en_d <= rx_data_en;
+        rx_byte_vld <= 1'b0;
+    end
+
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        rx_1byte_cmplt_red_d <= 1'b0;
+      else
+        rx_1byte_cmplt_red_d <= rx_1byte_cmplt_red;
     end
 
   /*------------------------------------------------------------------------------
@@ -200,7 +249,7 @@ module apb_ucpd_data_rx (
         rxfifo_full <= 1'b0;
       else if(rxdr_rd)
         rxfifo_full <= 1'b0;
-      else if(rxfifo_wr_en)
+      else if(rxfifo_wr_data)
         rxfifo_full <= 1'b1;
     end
 
@@ -220,6 +269,13 @@ module apb_ucpd_data_rx (
         rx_data[7:4] = decode_4b;
     end
 
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin
+      if(~ic_rst_n)
+        rx_data_en_d <= 1'b0;
+      else
+        rx_data_en_d <= rx_data_en;
+    end
   /*------------------------------------------------------------------------------
   --  receive half byte data(message data, crc, `EOP) get latest from 5 bits fifo
   ------------------------------------------------------------------------------*/
