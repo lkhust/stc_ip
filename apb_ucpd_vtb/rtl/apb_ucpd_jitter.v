@@ -53,7 +53,7 @@ module apb_ucpd_jitter (
   --  1us counter
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : us_counter_proc
       if(ic_rst_n == 1'b0)
         us_counter <= 6'd0;
       else if(us_tick)
@@ -66,7 +66,7 @@ module apb_ucpd_jitter (
   --  1ms counter
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : ms_counter_proc
       if(ic_rst_n == 1'b0)
         ms_counter <= 10'd0;
       else if(ms_tick)
@@ -79,7 +79,7 @@ module apb_ucpd_jitter (
   --
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : jitter_in_r_proc
       if(ic_rst_n == 1'b0)
         jitter_in_r <= 2'b0;
       else if(us_jitter)
@@ -90,7 +90,7 @@ module apb_ucpd_jitter (
   --  delay sw input det_us dectect time
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : us_det_counter_proc
       if(ic_rst_n == 1'b0)
         us_det_counter <= 10'd0;
       else if(us_jitter)
@@ -103,7 +103,7 @@ module apb_ucpd_jitter (
   --  delay sw input det_ms dectect time
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : ms_det_counter_proc
       if(ic_rst_n == 1'b0)
         ms_det_counter <= 5'd0;
       else if(jitter)
@@ -118,7 +118,7 @@ module apb_ucpd_jitter (
   --  output
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : jitter_out_proc
       if(ic_rst_n == 1'b0)
         jitter_out <= 1'b0;
       else if(ms_jitter)

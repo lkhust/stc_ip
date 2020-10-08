@@ -14,30 +14,30 @@
 -- =====================================================================
 */
 module apb_ucpd_data_rx (
-  input            ic_clk          , // processor clock
-  input            ucpd_clk        ,
-  input            ic_rst_n        , // asynchronous reset, active low
-  input            rx_bit5_cmplt   ,
-  input            rx_bit_cmplt    ,
-  input            rx_idle_en      ,
-  input            rx_pre_en       ,
-  input            rx_sop_en       ,
-  input            rx_data_en      ,
-  input            rxdr_rd         ,
-  input            decode_bmc      ,
-  input            crc_ok          ,
-  input            dec_rxbit_en    ,
-  input      [8:0] rx_ordset_en    ,
-  output           rx_sop_cmplt    ,
-  output     [5:0] rx_status       ,
-  output     [6:0] rx_ordset       ,
-  output           rxfifo_wr_en    ,
-  output  [9:0] rx_paysize     ,
-  output reg       hrst_vld        ,
-  output reg       crst_vld        ,
-  output           rx_ordset_vld   ,
-  output reg       eop_ok          ,
-  output  [7:0] rx_byte_no_crc,
+  input            ic_clk        , // processor clock
+  input            ucpd_clk      ,
+  input            ic_rst_n      , // asynchronous reset, active low
+  input            rx_bit5_cmplt ,
+  input            rx_bit_cmplt  ,
+  input            rx_idle_en    ,
+  input            rx_pre_en     ,
+  input            rx_sop_en     ,
+  input            rx_data_en    ,
+  input            rxdr_rd       ,
+  input            decode_bmc    ,
+  input            crc_ok        ,
+  input            dec_rxbit_en  ,
+  input      [8:0] rx_ordset_en  ,
+  output           rx_sop_cmplt  ,
+  output     [5:0] rx_status     ,
+  output     [6:0] rx_ordset     ,
+  output           rxfifo_wr_en  ,
+  output     [9:0] rx_paysize    ,
+  output reg       hrst_vld      ,
+  output reg       crst_vld      ,
+  output           rx_ordset_vld ,
+  output reg       eop_ok        ,
+  output     [7:0] rx_byte_no_crc,
   output     [7:0] rx_byte_to_crc
 );
 
@@ -129,7 +129,7 @@ module apb_ucpd_data_rx (
   assign rx_ordset_vld_ord  = {sop_ex2_vld,sop_ex1_vld,sop2_deg_vld,sop1_deg_vld,crst_vld,1'b0,sop2_vld,sop1_vld,sop0_vld};
 
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : rx_byte_dly_proc
       if(~ic_rst_n) begin
         rx_byte_r1 <= 8'b0;
         rx_byte_r2 <= 8'b0;
@@ -151,7 +151,7 @@ module apb_ucpd_data_rx (
     end
 
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : rx_byte_proc
       if(~ic_rst_n)
         rx_byte <= 8'b0;
       else
@@ -159,7 +159,7 @@ module apb_ucpd_data_rx (
     end
 
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : sop_vld_proc
       if(~ic_rst_n) begin
         sop0_vld     <= 1'b0; // SOP code detected in receiver
         sop1_vld     <= 1'b0; // SOP' code detected in receiver
@@ -197,7 +197,7 @@ module apb_ucpd_data_rx (
     end
 
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : rx_1byte_cmplt_d_proc
       if(~ic_rst_n)
         rx_1byte_cmplt_d <= 1'b0;
       else
@@ -209,7 +209,7 @@ module apb_ucpd_data_rx (
   --  the rx_byte_cnt sent to SW means RX_PAYSZ register
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : rx_byte_cnt_proc
       if(~ic_rst_n)
         rx_byte_cnt <= 10'b0;
       else if(rx_sop_en)
@@ -219,7 +219,7 @@ module apb_ucpd_data_rx (
     end
 
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : rx_byte_vld_proc
       if(~ic_rst_n)
         rx_byte_vld <= 1'b0;
       else if(rx_byte_cnt >= 'd4)
@@ -229,7 +229,7 @@ module apb_ucpd_data_rx (
     end
 
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : rx_1byte_cmplt_red_d_proc
       if(~ic_rst_n)
         rx_1byte_cmplt_red_d <= 1'b0;
       else
@@ -241,7 +241,7 @@ module apb_ucpd_data_rx (
   --  0: rxfifo empty, 1: rxfifo is not empty (RXNE)
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : rxfifo_full_proc
       if(~ic_rst_n)
         rxfifo_full <= 1'b0;
       else if(eop_ok | rx_idle_en)
@@ -257,7 +257,7 @@ module apb_ucpd_data_rx (
   --  rx_data send to SW as rxdr value
   ------------------------------------------------------------------------------*/
   always @(*)
-    begin
+    begin : rx_data_comb
       if(~ic_rst_n)
         rx_data = 8'b0;
       else if(eop_ok | rx_idle_en)
@@ -270,7 +270,7 @@ module apb_ucpd_data_rx (
 
   ///      under code for ucpd clk domain  /////
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : rx_data_en_d_proc
       if(~ic_rst_n)
         rx_data_en_d <= 1'b0;
       else
@@ -280,7 +280,7 @@ module apb_ucpd_data_rx (
   --  receive half byte data(message data, crc, `EOP) get latest from 5 bits fifo
   ------------------------------------------------------------------------------*/
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : rx_5bits_proc
       if(~ic_rst_n) begin
         rx_5bits     <= 5'b0;
         rx_5bits_cnt <= 10'b0;
@@ -300,7 +300,7 @@ module apb_ucpd_data_rx (
   --  generate wrfifo status singal to infrom SW need read RXDR register
   ------------------------------------------------------------------------------*/
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : rx_hafbyte_cnt_proc
       if(~ic_rst_n) begin
         rx_1byte_cmplt <= 1'b0;
         rx_hafbyte_cnt <= 2'b0;
@@ -325,7 +325,7 @@ module apb_ucpd_data_rx (
   --  when rx_sop_cmplt_d valid registe RX_ORDSET
   ------------------------------------------------------------------------------*/
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : rx_sop_3of4_proc
       if(~ic_rst_n) begin
         rx_sop_invld_num <= 3'd0;
         rx_sop_3of4      <= 1'd0;
@@ -368,7 +368,7 @@ module apb_ucpd_data_rx (
   wire [8:0] rx_ordset_ord;
   assign rx_ordset_ord = rx_ordset_vld_ord & rx_ordset_en;
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : rx_ordset_det_proc
       if(~ic_rst_n)
         rx_ordset_det <= 3'd0;
       else begin
@@ -399,7 +399,7 @@ module apb_ucpd_data_rx (
   reg sop_k3_rd;
   reg sop_k4_rd;
   always @(*)
-    begin
+    begin : sop_key_comb
       sop_k1_code_nxt = 5'b0;
       sop_k2_code_nxt = 5'b0;
       sop_k3_code_nxt = 5'b0;
@@ -435,7 +435,7 @@ module apb_ucpd_data_rx (
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : sop_k_code_proc
       if(~ic_rst_n) begin
         sop_k1_code <= 5'b0;
         sop_k2_code <= 5'b0;
@@ -460,7 +460,7 @@ module apb_ucpd_data_rx (
 
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : eop_ok_proc
       if(~ic_rst_n)
         eop_ok <= 1'b0;
       else
@@ -471,7 +471,7 @@ module apb_ucpd_data_rx (
   --   wheather ordered set detect and Invalid number, `EOP K code detect
   ------------------------------------------------------------------------------*/
   always @(*)
-    begin
+    begin : sop_eop_ok_comb
       sop_1st_ok = 1'b0;
       sop_2st_ok = 1'b0;
       sop_3st_ok = 1'b0;
@@ -527,7 +527,8 @@ module apb_ucpd_data_rx (
   /*------------------------------------------------------------------------------
   --  Rx ordered set code detected
   ------------------------------------------------------------------------------*/
-  always @(*) begin
+  always @(*)
+  begin : sop_vld_prc
     sop0_vld_nxt     = 1'b0; // SOP code detected in receiver
     sop1_vld_nxt     = 1'b0; // SOP' code detected in receiver
     sop1_deg_vld_nxt = 1'b0; // SOP'_Debug detected in receiver
@@ -598,7 +599,7 @@ module apb_ucpd_data_rx (
   --  5 bit fifo receive BMC data, when sop, data, `EOP phase
   ------------------------------------------------------------------------------*/
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : bmc_rx_shift_proc
       if(~ic_rst_n)
         bmc_rx_shift <= 5'b0;
       else if(eop_ok | rx_idle_en)
@@ -625,7 +626,7 @@ module apb_ucpd_data_rx (
   --  count sop, data, crc, `EOP half byte(5bits) recive number
   ------------------------------------------------------------------------------*/
   always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : rx_sop_half_byte_cnt_proc
       if(~ic_rst_n)
         rx_sop_half_byte_cnt <= 2'b0;
       else if(rx_sop_cmplt_d)
@@ -638,7 +639,7 @@ module apb_ucpd_data_rx (
   --  according received 5bits data decode 4bits data (message, crc)
   ------------------------------------------------------------------------------*/
   always @(*)
-    begin
+    begin : decode_4b_comb
       decode_4b = 4'b0000;
       case (rx_5bits)
         5'b11110 : decode_4b = 4'b0000; // 0

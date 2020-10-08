@@ -160,23 +160,6 @@ module apb_ucpd_if (
   assign ic_clk   = pclk;
   assign ic_rst_n = presetn;
 
-  assign hard_rst       = tx_status[5];
-  assign ic_rx_ordset_s = {{25{1'b0}}, rx_ordset};
-  assign ic_rx_paysz_s  = {{22{1'b0}}, rx_paysize};
-  assign ic_rxdr_s      = {{24{1'b0}}, rx_data};
-
-  assign ucpd_intr    = |(ic_imr & ic_sr);
-  assign txdr_we      = (ic_txdr_we == 1'b1 && ucpden);
-  assign tx_ordset_we = (ic_tx_ordset_we == 1'b1 && ucpden);
-  assign tx_ordset    = ic_tx_ordset[19:0];
-  assign tx_paysize   = ic_tx_paysz[9:0];
-  assign rxfilte      = ic_cfg2[1:0];
-  assign transmit_en  = ic_cr[2];
-  assign clk_freq     = ic_jitter[22:17];
-  assign jitter_en    = ic_jitter[16];
-  assign det_us       = ic_jitter[15:5];
-  assign det_ms       = ic_jitter[4:0];
-
   /*------------------------------------------------------------------------------
   --  Address decoder
   --  Decodes the register address offset input(reg_addr)
@@ -220,6 +203,18 @@ module apb_ucpd_if (
   /*------------------------------------------------------------------------------
   --   Control signal generation
   ------------------------------------------------------------------------------*/
+  assign hard_rst     = tx_status[5];
+  assign ucpd_intr    = |(ic_imr & ic_sr);
+  assign txdr_we      = (ic_txdr_we == 1'b1 && ucpden);
+  assign tx_ordset_we = (ic_tx_ordset_we == 1'b1 && ucpden);
+  assign tx_ordset    = ic_tx_ordset[19:0];
+  assign tx_paysize   = ic_tx_paysz[9:0];
+  assign rxfilte      = ic_cfg2[1:0];
+  assign transmit_en  = ic_cr[2];
+  assign clk_freq     = ic_jitter[22:17];
+  assign jitter_en    = ic_jitter[16];
+  assign det_us       = ic_jitter[15:5];
+  assign det_ms       = ic_jitter[4:0];
   assign rxdr_rd      = ic_rxdr_en & rd_en;
   assign ucpden       = ic_cfg1[31];
   assign rx_ordset_en = ic_cfg1[28:20];
@@ -227,15 +222,26 @@ module apb_ucpd_if (
   assign transwin     = ic_cfg1[15:11];
   assign ifrgap       = ic_cfg1[10:06];
   assign hbitclkdiv   = ic_cfg1[05:00];
-
-  assign ic_cfg1_s    = ic_cfg1;
-  assign ic_cfg2_s    = ic_cfg2;
-  assign ic_jitter_s  = ic_jitter;
-  assign ic_cr_s      = ic_cr;
-  assign ic_sr_s      = ic_sr;
   assign tx_mode      = ic_cr[1:0];
   assign tx_hrst      = ic_cr[3];
   assign transmit_en  = ic_cr[2];
+
+  /*------------------------------------------------------------------------------
+  --  for apb read data
+  ------------------------------------------------------------------------------*/
+  assign ic_cfg1_s       = ic_cfg1;
+  assign ic_cfg2_s       = ic_cfg2;
+  assign ic_jitter_s     = ic_jitter;
+  assign ic_cr_s         = ic_cr;
+  assign ic_sr_s         = ic_sr;
+  assign ic_imr_s        = ic_imr;
+  assign ic_tx_paysz_s   = ic_tx_paysz;
+  assign ic_txdr_s       = ic_txdr;
+  assign ic_rx_ordset_s  = {{25{1'b0}}, rx_ordset};
+  assign ic_rx_paysz_s   = {{22{1'b0}}, rx_paysize};
+  assign ic_rxdr_s       = {{24{1'b0}}, rx_data};
+  assign ic_rx_ordext1_s = ic_rx_ordext1;
+  assign ic_rx_ordext2_s = ic_rx_ordext2;
 
   /*------------------------------------------------------------------------------
   --  analog interface
@@ -276,7 +282,7 @@ module apb_ucpd_if (
   assign cc2_comp = jitter_en ? cc2_compout_jitter : cc2_compout;
 
   always @(*)
-    begin
+    begin : vstate_cc1_comb
       if(source_en)
         case(cc1_comp)
           3'b001  : vstate_cc1 = 2'd0;
@@ -295,7 +301,7 @@ module apb_ucpd_if (
     end
 
   always @(*)
-    begin
+    begin : vstate_cc2_comb
       if(source_en)
         case(cc2_comp)
           3'b001  : vstate_cc2 = 2'd0;
@@ -357,7 +363,7 @@ module apb_ucpd_if (
   reg [6:0] tx_status_sync_d;
   reg [5:0] rx_status_sync_d;
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : tx_rx_status_sync_d_proc
       if (presetn == 1'b0) begin
         tx_status_sync_d <= 7'b0;
         rx_status_sync_d <= 6'b0;
@@ -374,7 +380,7 @@ module apb_ucpd_if (
   reg [1:0] vstate_cc1_d;
   reg [1:0] vstate_cc2_d;
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : vstate_cc1_cc2_d_proc
       if (presetn == 1'b0) begin
         vstate_cc1_d <= 2'b0;
         vstate_cc2_d <= 2'b0;
@@ -390,16 +396,17 @@ module apb_ucpd_if (
 
   reg  typec_evt1_d;
   reg  typec_evt2_d;
-  always @(posedge pclk or negedge presetn) begin
-    if (presetn == 1'b0) begin
-      typec_evt1_d <= 1'b0;
-      typec_evt2_d <= 1'b0;
+  always @(posedge pclk or negedge presetn)
+    begin : typec_evt1_evt2_d_proc
+      if (presetn == 1'b0) begin
+        typec_evt1_d <= 1'b0;
+        typec_evt2_d <= 1'b0;
+      end
+      else begin
+        typec_evt1_d <= typec_evt1;
+        typec_evt2_d <= typec_evt2;
+      end
     end
-    else begin
-      typec_evt1_d <= typec_evt1;
-      typec_evt2_d <= typec_evt2;
-    end
-  end
 
   assign typec_evt1_red = typec_evt1 & ~typec_evt1_d;
   assign typec_evt2_red = typec_evt2 & ~typec_evt2_d;
@@ -409,7 +416,7 @@ module apb_ucpd_if (
   ------------------------------------------------------------------------------*/
   reg [1:0] frs_evt_r;
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : frs_evt_r_proc
       if (presetn == 1'b0)
         frs_evt_r <= 2'b0;
       else
@@ -424,7 +431,7 @@ module apb_ucpd_if (
 
   // apb write UCPD configuration register 1 (UCPD_CFG1)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_cfg1_proc
       if (presetn == 1'b0)
         ic_cfg1 <= 32'b0;
       else if(hard_rst)
@@ -439,7 +446,7 @@ module apb_ucpd_if (
 
   // apb write UCPD configuration register 2 (UCPD_CFG2)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_cfg2_proc
       if (presetn == 1'b0)
         ic_cfg2 <= 32'b0;
       else if (ic_cfg2_we == 1'b1 && ucpden == 1'b0)
@@ -452,7 +459,7 @@ module apb_ucpd_if (
   -- default 0x21_00A1 (det_ms=1, det_us=5, jitter_en=1, clk_freq=16)
   ------------------------------------------------------------------------------*/
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_jitter_proc
       if (presetn == 1'b0)
         ic_jitter <= 32'h0021_00A1;
       else if (ic_jitter_we == 1'b1 && ucpden == 1'b0)
@@ -461,7 +468,7 @@ module apb_ucpd_if (
 
   // apb write UCPD control register (UCPD_CR)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_cr_proc
       if (presetn == 1'b0)
         ic_cr <= 32'b0;
       else if(ucpden == 1'b0)
@@ -478,7 +485,7 @@ module apb_ucpd_if (
 
   // apb write UCPD Interrupt Mask Register (UCPD_IMR)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_imr_proc
       if (presetn == 1'b0)
         ic_imr <= 32'b0;
       else if((ic_imr_we == 1'b1) && ucpden)
@@ -487,7 +494,7 @@ module apb_ucpd_if (
 
   // apb write UCPD Interrupt Clear Register (UCPD_ICR)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_icr_proc
       if (presetn == 1'b0)
         ic_icr <= 32'b0;
       else if(ucpden == 1'b0)
@@ -526,7 +533,7 @@ module apb_ucpd_if (
 
   // apb write UCPD Tx Ordered Set Type Register (UCPD_TX_ORDSET)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_tx_ordset_proc
       if (presetn == 1'b0)
         ic_tx_ordset <= 32'b0;
       else if(ucpden == 1'b0)
@@ -537,7 +544,7 @@ module apb_ucpd_if (
 
   // apb write UCPD Tx Paysize Register (UCPD_TX_PAYSZ)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_tx_paysz_proc
       if (presetn == 1'b0)
         ic_tx_paysz <= 32'b0;
       else if(ucpden == 1'b0)
@@ -547,18 +554,19 @@ module apb_ucpd_if (
     end
 
   // apb write UCPD Tx Data Register (UCPD_TXDR)
-  always @(posedge pclk or negedge presetn) begin
-    if (presetn == 1'b0)
-      ic_txdr <= 32'b0;
-    else if(ucpden == 1'b0)
-      ic_txdr <= 32'b0;
-    else if(ic_txdr_we == 1'b1)
-      ic_txdr <= ipwdata;
-  end
+  always @(posedge pclk or negedge presetn)
+    begin : ic_txdr_proc
+      if (presetn == 1'b0)
+        ic_txdr <= 32'b0;
+      else if(ucpden == 1'b0)
+        ic_txdr <= 32'b0;
+      else if(ic_txdr_we == 1'b1)
+        ic_txdr <= ipwdata;
+    end
 
   // apb write UCPD Rx Ordered Set Extension Register #1 (UCPD_RX_ORDEXT1)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_rx_ordext1_proc
       if (presetn == 1'b0)
         ic_rx_ordext1 <= 32'b0;
       else if(ucpden == 1'b0)
@@ -569,7 +577,7 @@ module apb_ucpd_if (
 
   // apb write UCPD Rx Ordered Set Extension Register #2 (UCPD_RX_ORDEXT2)
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_rx_ordext2_proc
       if (presetn == 1'b0)
         ic_rx_ordext2 <= 32'b0;
       else if(ucpden == 1'b0)
@@ -582,7 +590,7 @@ module apb_ucpd_if (
   --  generate UCPD Status Register (UCPD_SR) read data
   ------------------------------------------------------------------------------*/
   always @(posedge pclk or negedge presetn)
-    begin
+    begin : ic_sr_proc
       if(presetn == 1'b0)
         ic_sr <= 31'b0;
       else begin

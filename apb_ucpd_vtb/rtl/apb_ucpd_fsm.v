@@ -1,7 +1,7 @@
 /*
 ------------------------------------------------------------------------
 --
--- File :                       apb_ucpd_data_trans.v
+-- File :                       apb_ucpd_fsm.v
 -- Author:                      luo kun
 -- Date :                       $Date: 2020/07/12 $
 -- Abstract:                    PD main state machine
@@ -145,7 +145,7 @@ module apb_ucpd_fsm (
   // -- and generate the outputs in ic_clk domain for tx data
   // ----------------------------------------------------------
   always @ (posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : tx_cur_state_proc
       if (!ic_rst_n)
         tx_cur_state <= TX_IDLE;
       else if(!ucpden)
@@ -155,7 +155,7 @@ module apb_ucpd_fsm (
     end
 
   always @(*)
-    begin
+    begin : tx_state_comb
       tx_nxt_state = TX_IDLE;
       case (tx_cur_state)
         TX_IDLE :
@@ -246,7 +246,7 @@ module apb_ucpd_fsm (
   --  count totole tx bit, according in each fsm stage
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : txbit_cnt_proc
       if(~ic_rst_n)
         txbit_cnt <= 16'b0;
       else if(trans_cmplt)
@@ -256,7 +256,7 @@ module apb_ucpd_fsm (
     end
 
    always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : tx5bit_cnt_proc
       if(~ic_rst_n)
         tx5bit_cnt <= 8'd0;
       else if(trans_cmplt)
@@ -271,7 +271,7 @@ module apb_ucpd_fsm (
   --  count totole tx byte need 10 bits, according in data_en
   ------------------------------------------------------------------------------*/
   always @(posedge ic_clk or negedge ic_rst_n)
-    begin
+    begin : one_data_txbit_cnt_proc
       if(~ic_rst_n)
         one_data_txbit_cnt <= 4'b0;
       else if(data_en & bit_clk_red) begin
@@ -285,23 +285,24 @@ module apb_ucpd_fsm (
   /*------------------------------------------------------------------------------
   --  count totole tx byte, according in data_en
   ------------------------------------------------------------------------------*/
-  always @(posedge ic_clk or negedge ic_rst_n) begin
-    if(~ic_rst_n)
-      txbyte_cnt <= 10'b0;
-    else if(data_en) begin
-      if(txbyte_cnt == tx_paybit_size && tx_bit10_cmplt)
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin : txbyte_cnt_proc
+      if(~ic_rst_n)
         txbyte_cnt <= 10'b0;
-      else if(one_data_txbit_cnt == `TX_BIT10_NUM && bit_clk_red)
-        txbyte_cnt <= txbyte_cnt+1;
+      else if(data_en) begin
+        if(txbyte_cnt == tx_paybit_size && tx_bit10_cmplt)
+          txbyte_cnt <= 10'b0;
+        else if(one_data_txbit_cnt == `TX_BIT10_NUM && bit_clk_red)
+          txbyte_cnt <= txbyte_cnt+1;
+      end
     end
-  end
 
   // ----------------------------------------------------------
   // -- This combinational process calculates FSM the next state
   // -- and generate the outputs in ucpd_clk domain for rx data
   // ----------------------------------------------------------
   always @ (posedge ucpd_clk or negedge ic_rst_n)
-    begin
+    begin : rx_cur_state_proc
       if (!ic_rst_n)
         rx_cur_state <= RX_IDLE;
       else if(!ucpden)
@@ -311,7 +312,7 @@ module apb_ucpd_fsm (
     end
 
   always @(*)
-    begin
+    begin : rx_state_comb
       rx_nxt_state = RX_IDLE;
       case (rx_cur_state)
         RX_IDLE :
@@ -346,7 +347,7 @@ module apb_ucpd_fsm (
 
         RX_DATA :
           begin
-            if(eop_ok | hrst_vld | crst_vld | ~rx_ordset_vld)
+            if(eop_ok | hrst_vld | crst_vld) //| ~rx_ordset_vld)
               rx_nxt_state = RX_IDLE;
             else
               rx_nxt_state = RX_DATA;
