@@ -1,8 +1,9 @@
 `ifndef __APB_UCPD_DEF_H__
   `define __APB_UCPD_DEF_H__
 
-  `define RX_PRE_EDG     193
-  `define PRE_BIT_NUM    127
+  `define TX_PREAMBLE    64
+  `define RX_PRE_EDG     97
+  `define PRE_BIT_NUM    63
   `define SOP_BIT_NUM    19
   `define CRC_BIT_NUM    39
   `define SOP_HBYTE_NUM  4

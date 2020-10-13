@@ -424,7 +424,7 @@ module apb_ucpd_bmc_filter (
           data1_flag <= 1'b0;
         data_cnt <= 11'b0;
       end
-      else if(rx_pre_en | rx_sop_en | rx_data_en)
+      else
         data_cnt <= data_cnt+1;
     end
 

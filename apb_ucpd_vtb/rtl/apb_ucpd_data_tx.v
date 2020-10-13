@@ -56,13 +56,13 @@ module apb_ucpd_data_tx (
   // -- local registers and wires
   // ----------------------------------------------------------
   //registers
-  reg [127:0] pre_shift     ;
-  reg [ 39:0] tx_crc_40bits ;
-  reg [  9:0] tx_data_10bits;
-  reg [ 19:0] sop_shift     ;
-  reg [  9:0] data_shift    ;
-  reg [ 39:0] crc_shift     ;
-  reg [  4:0] eop_shift     ;
+  reg [63:0]  pre_shift     ;
+  reg [39:0]  tx_crc_40bits ;
+  reg [ 9:0]  tx_data_10bits;
+  reg [19:0]  sop_shift     ;
+  reg [ 9:0]  data_shift    ;
+  reg [39:0]  crc_shift     ;
+  reg [ 4:0]  eop_shift     ;
   reg         txfifo_full   ;
   reg         txdr_we_d     ;
 
@@ -201,11 +201,11 @@ module apb_ucpd_data_tx (
   always @(posedge ic_clk or negedge ic_rst_n)
     begin : pre_shift_proc
       if(~ic_rst_n)
-        pre_shift <= 128'b0;
+        pre_shift <= 64'b0;
       else if(transmit_en_red | tx_hrst_red | tx_crst_red | tx_sop_cmplt)
-        pre_shift <= {64{2'b10}};
+        pre_shift <= {`TX_PREAMBLE{2'b10}};
       else if(pre_en & bit_clk_red)
-        pre_shift <= {1'b0, pre_shift[127:1]};
+        pre_shift <= {1'b0, pre_shift[63:1]};
     end
 
   /*------------------------------------------------------------------------------
