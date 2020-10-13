@@ -160,7 +160,7 @@ module apb_ucpd_fsm (
       case (tx_cur_state)
         TX_IDLE :
           begin
-            if(transwin_en & (transmit_en | tx_hrst | hrst_tx_en))  // SW send TXSEND cmd
+            if(transwin_en & bit_clk_red & (transmit_en | tx_hrst | hrst_tx_en))  // SW send TXSEND cmd
               tx_nxt_state = TX_PRE;
             else
               tx_nxt_state = TX_IDLE;

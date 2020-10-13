@@ -1,10 +1,9 @@
 ../tb/ucpd_tb.v
 
-../rtl/apb_parameter_def.v
+../rtl/apb_ucpd_adef.v
 ../rtl/apb_ucpd_biu.v
 ../rtl/apb_ucpd_clk_div.v
 ../rtl/apb_ucpd_clk_gen.v
-../rtl/apb_ucpd_bcm41.v
 ../rtl/apb_ucpd_bcm21.v
 ../rtl/apb_ucpd_bmc_filter.v
 ../rtl/apb_ucpd_jitter.v

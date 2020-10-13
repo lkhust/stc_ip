@@ -93,7 +93,7 @@ module apb_ucpd_bmc_filter (
 
   assign asyn_cc_in_a = ic_cc_in;
   assign cc_in_sync_nxt   = asyn_cc_sync;
-  apb_ucpd_bcm41 #(.RST_VAL(1), .VERIF_EN(0)) u_cc_in_icsyzr (
+  apb_ucpd_bcm21 #(.WIDTH(1)) u_cc_in_icsyzr (
     .clk_d   (ucpd_clk    ),
     .rst_d_n (ic_rst_n    ),
     .init_d_n(1'b1        ),
@@ -201,8 +201,10 @@ module apb_ucpd_bmc_filter (
         cc_in_vld <= 1'b0;
       else if(rx_sop_en | rx_data_en)
         cc_in_vld <= 1'b0;
-      else if(cc_in_edg)
+      else if(cc_in_edg & phy_rx_en)
         cc_in_vld <= 1'b1;
+      else if(~phy_rx_en)
+        cc_in_vld <= 1'b0;
     end
 
   // begin preamble use 2 bit to count edge, get 3 counter
