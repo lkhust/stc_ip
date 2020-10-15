@@ -94,6 +94,12 @@ module apb_ucpd_fsm (
   reg [ 9:0] txbyte_cnt        ;
   reg [15:0] txbit_cnt         ;
   reg [ 7:0] tx5bit_cnt        ;
+  reg [5:0] us_counter    ;
+  reg [9:0] ms_counter    ;
+  reg [9:0] us_det_counter;
+  reg [7:0] ms_det_counter;
+  reg       us_tick       ;
+  reg       ms_tick       ;
 
   //wires nets
   wire        trans_cmplt   ;
@@ -140,6 +146,11 @@ module apb_ucpd_fsm (
   assign bmc_en           = pre_en| sop_en| data_en | crc_en | eop_en | wait_en;
   assign enc_txbit_en     = sop_en | data_en | crc_en | eop_en;
   assign dec_rxbit_en     = rx_sop_en | rx_data_en;
+
+  assign ms_tick_nxt   = (ms_counter == 999);
+  assign us_tick_nxt   = (us_counter == 15);
+  assign ms_tick_100   = (ms_det_counter == 100);
+  assign rx_timeout = receive_en & dec_rxbit_en & ms_tick_100;
   // ----------------------------------------------------------
   // -- This combinational process calculates FSM the next state
   // -- and generate the outputs in ic_clk domain for tx data
@@ -347,7 +358,7 @@ module apb_ucpd_fsm (
 
         RX_DATA :
           begin
-            if(eop_ok | hrst_vld | crst_vld) //| ~rx_ordset_vld)
+            if(eop_ok | hrst_vld | crst_vld | rx_timeout) //| ~rx_ordset_vld)
               rx_nxt_state = RX_IDLE;
             else
               rx_nxt_state = RX_DATA;
@@ -356,6 +367,55 @@ module apb_ucpd_fsm (
         default : ;
 
       endcase
+    end
+
+  /*------------------------------------------------------------------------------
+  --  1us counter
+  ------------------------------------------------------------------------------*/
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin : us_counter_proc
+      if(ic_rst_n == 1'b0)
+        us_counter <= 6'd0;
+      else if(us_tick)
+        us_counter <= 6'd0;
+      else
+        us_counter <= us_counter + 1;
+    end
+
+  /*------------------------------------------------------------------------------
+  --  1ms counter
+  ------------------------------------------------------------------------------*/
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin : ms_counter_proc
+      if(ic_rst_n == 1'b0)
+        ms_counter <= 10'd0;
+      else if(ms_tick)
+        ms_counter <= 10'd0;
+      else if(us_tick)
+        ms_counter <= ms_counter + 1;
+    end
+
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin
+      if(ic_rst_n == 1'b0) begin
+        us_tick   <= 1'b0;
+        ms_tick   <= 1'b0;
+      end
+      else begin
+        us_tick   <= us_tick_nxt;
+        ms_tick   <= ms_tick_nxt;
+      end
+    end
+
+  /*------------------------------------------------------------------------------
+  --  delay sw input det_ms dectect time
+  ------------------------------------------------------------------------------*/
+  always @(posedge ic_clk or negedge ic_rst_n)
+    begin : ms_det_counter_proc
+      if(ic_rst_n == 1'b0)
+        ms_det_counter <= 8'd0;
+      else if(ms_tick)
+        ms_det_counter <= ms_det_counter + 1;
     end
 
 endmodule

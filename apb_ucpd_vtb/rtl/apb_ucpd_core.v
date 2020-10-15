@@ -49,6 +49,7 @@ module apb_ucpd_core (
   wire [31:0] crc_tx_out      ;
   wire        tx_hrst_flag    ;
   wire        tx_crst_flag    ;
+  wire        rx_bit_sample   ;
   wire        pre_en          ;
   wire        bmc_en          ;
   wire        sop_en          ;
@@ -141,6 +142,7 @@ module apb_ucpd_core (
     .decode_bmc   (decode_bmc   ),
     .ic_cc_out    (ic_cc_out    ),
     .rx_bit_cmplt (rx_bit_cmplt ),
+    .rx_bit_sample(rx_bit_sample),
     .rx_pre_cmplt (rx_pre_cmplt ),
     .rx_bit5_cmplt(rx_bit5_cmplt),
     .receive_en   (receive_en   )
@@ -207,6 +209,7 @@ module apb_ucpd_core (
     .ic_rst_n      (ic_rst_n      ),
     .rx_bit5_cmplt (rx_bit5_cmplt ),
     .rx_bit_cmplt  (rx_bit_cmplt  ),
+    .rx_bit_sample (rx_bit_sample ),
     .rx_idle_en    (rx_idle_en    ),
     .rx_pre_en     (rx_pre_en     ),
     .rx_sop_en     (rx_sop_en     ),
