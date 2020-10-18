@@ -18,9 +18,13 @@ module apb_ucpd_clk_gen (
   input            ic_rst_n        , // asynchronous reset, active low
   input            tx_eop_cmplt    ,
   input            tx_sop_rst_cmplt,
+  input            ic_cc_in        ,
+  input            ic_cc_out       ,
   input            transmit_en     ,
+  input            tx_hrst         ,
   input            bmc_en          ,
   input            wait_en         ,
+  input            rx_wait_en      ,
   input      [4:0] transwin        , // use half bit clock to achieve a legal tTransitionWindow
   input      [4:0] ifrgap          , // Interframe gap
   input      [2:0] psc_usbpdclk    , // Pre-scaler for UCPD_CLK
@@ -68,6 +72,8 @@ module apb_ucpd_clk_gen (
   assign hbit_clk_red = ~hbit_clk_r & hbit_clk_sync;
   assign ucpd_clk_red = ~ucpd_clk_r & ucpd_clk;
   assign transmit_en_edg = transmit_en_d ^ transmit_en;
+  assign tx_wait_vld = wait_en && ic_cc_out;
+  assign rx_wait_vld = rx_wait_en && ic_cc_in;
 
   always @(*)
     begin : pre_scaler_div_comb
@@ -88,7 +94,7 @@ module apb_ucpd_clk_gen (
 
   // HBITCLKDIV[5:0] = 0x0: Divide by 1 to produce HBITCLK
   assign hbit_clk = (hbitclkdiv == 6'b0) ? ucpd_clk : hbit_clk_out;
-  // assign hbit_clk_sync = transmit_en_d ? hbit_clk : 1'b0;
+  //assign hbit_clk_sync = (transmit_en_d | tx_hrst) ? hbit_clk : 1'b0;
   assign hbit_clk_sync = hbit_clk;
 
   // ----------------------------------------------------------
@@ -119,7 +125,7 @@ module apb_ucpd_clk_gen (
             ifrgap_cnt <= 5'b0;
             ifrgap_en  <= 1'b0;
           end
-        else if((ucpd_clk_red || bypass_prescaler) && wait_en)
+        else if((ucpd_clk_red || bypass_prescaler) && (wait_en || rx_wait_vld))
           begin
             if(ifrgap_cnt < ifrgap) begin
               ifrgap_cnt <= ifrgap_cnt+1;
@@ -172,7 +178,7 @@ module apb_ucpd_clk_gen (
     begin : bit_clk_proc
       if(~ic_rst_n)
         bit_clk <= 1'b0;
-      else
+      else //if(cc_oen)
         bit_clk <= ~bit_clk;
     end
 

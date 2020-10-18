@@ -26,8 +26,7 @@ module apb_ucpd_data_rx (
   input            rx_data_en    ,
   input            rxdr_rd       ,
   input            decode_bmc    ,
-  input            crc_ok        ,
-  input            dec_rxbit_en  ,
+  input            crc_ok        ,  
   input      [8:0] rx_ordset_en  ,
   output           rx_sop_cmplt  ,
   output     [5:0] rx_status     ,
@@ -87,8 +86,8 @@ module apb_ucpd_data_rx (
   reg [ 7:0] rx_byte             ;
   reg        rx_byte_vld         ;
   reg        rx_1byte_cmplt_red_d;
-  reg        rx_bit5_cmplt_d;
-  reg        rx_sop_en_d;
+  reg        rx_bit5_cmplt_d     ;
+  reg        rx_sop_en_d         ;
   reg [ 9:0] rx_byte_cnt         ;
 
   // wire
@@ -106,7 +105,8 @@ module apb_ucpd_data_rx (
   // todo
   assign sop_ex1_vld = 1'b0;
   assign sop_ex2_vld = 1'b0;
-
+ 
+  assign dec_rxbit_en       = rx_sop_en | rx_data_en;
   assign rxfifo_wr_data     = rx_1byte_cmplt_red_d & rx_byte_vld;
   assign rx_paysize         = rx_byte_no_crc_cnt;
   assign rx_byte_to_crc     = rx_byte;
@@ -221,7 +221,7 @@ module apb_ucpd_data_rx (
     begin : rxfifo_full_proc
       if(~ic_rst_n)
         rxfifo_full <= 1'b0;
-      else if(eop_ok | rx_idle_en)
+      else if(rx_idle_en)
         rxfifo_full <= 1'b0;
       else if(rxdr_rd)
         rxfifo_full <= 1'b0;
@@ -237,7 +237,7 @@ module apb_ucpd_data_rx (
     begin : rx_data_comb
       if(~ic_rst_n)
         rx_data = 8'b0;
-      else if(eop_ok | rx_idle_en)
+      else if(rx_idle_en)
         rx_data = 8'b0;
       else if(rx_5bits_cnt[0] & rx_data_en)
         rx_data[3:0] = decode_4b;
@@ -252,7 +252,7 @@ module apb_ucpd_data_rx (
     begin : rx_5bits_proc
       if(~ic_rst_n)
         rx_5bits     <= 5'b0;
-      else if(eop_ok | rx_idle_en)
+      else if(rx_idle_en)
         rx_5bits     <= 5'b0;
       else if(rx_data_en & rx_bit5_cmplt_d)
         rx_5bits     <= bmc_rx_shift;
@@ -262,7 +262,7 @@ module apb_ucpd_data_rx (
     begin : rx_5bits_cnt_proc
       if(~ic_rst_n)
         rx_5bits_cnt <= 10'b0;
-      else if(eop_ok | rx_idle_en)
+      else if(rx_idle_en)
         rx_5bits_cnt <= 10'b0;
       else if(rx_data_en & rx_bit5_cmplt)
         rx_5bits_cnt <= rx_5bits_cnt+1;
@@ -278,7 +278,7 @@ module apb_ucpd_data_rx (
         rx_1byte_cmplt <= 1'b0;
         rx_hafbyte_cnt <= 2'b0;
       end
-      else if(eop_ok | rx_idle_en) begin
+      else if(rx_idle_en) begin
         rx_1byte_cmplt <= 1'b0;
         rx_hafbyte_cnt <= 2'b0;
       end
@@ -372,7 +372,7 @@ module apb_ucpd_data_rx (
         sop_k3_code <= 5'b0;
         sop_k4_code <= 5'b0;
       end
-      else if(eop_ok | rx_idle_en) begin
+      else if(rx_idle_en) begin
         sop_k1_code <= 5'b0;
         sop_k2_code <= 5'b0;
         sop_k3_code <= 5'b0;
@@ -401,7 +401,7 @@ module apb_ucpd_data_rx (
         eop_ok     <= 1'b0;
       end
 
-      else if(eop_ok | rx_idle_en) begin
+      else if(rx_idle_en) begin
         sop_1st_ok <= 1'b0;
         sop_2st_ok <= 1'b0;
         sop_3st_ok <= 1'b0;
@@ -539,7 +539,7 @@ module apb_ucpd_data_rx (
     begin : bmc_rx_shift_proc
       if(~ic_rst_n)
         bmc_rx_shift <= 5'b0;
-      else if(eop_ok | rx_idle_en)
+      else if(rx_idle_en)
         bmc_rx_shift <= 5'b0;
       else if(dec_rxbit_en & rx_bit_sample)
         bmc_rx_shift <= {decode_bmc, bmc_rx_shift[4:1]};
@@ -560,7 +560,7 @@ module apb_ucpd_data_rx (
     begin : rx_sop_half_byte_cnt_proc
       if(~ic_rst_n)
         rx_sop_half_byte_cnt <= 2'b0;
-      else if(eop_ok | rx_idle_en)
+      else if(rx_idle_en)
         rx_sop_half_byte_cnt <= 2'b0;
       else if(rx_sop_en_d & rx_bit5_cmplt_d)
         rx_sop_half_byte_cnt <= rx_sop_half_byte_cnt+1;

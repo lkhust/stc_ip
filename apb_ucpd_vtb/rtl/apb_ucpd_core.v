@@ -69,7 +69,6 @@ module apb_ucpd_core (
   wire        receive_en      ;
   wire        ic_cc_in        ;
   wire        crst_vld        ;
-  wire        dec_rxbit_en    ;
   wire        tx_sop_cmplt    ;
   wire        tx_crc_cmplt    ;
   wire        txdr_req        ;
@@ -92,8 +91,8 @@ module apb_ucpd_core (
   wire [ 7:0] rx_byte_no_crc  ;
 
   assign ic_cc_in = cc_in;
-  assign data_in  = receive_en ? rx_byte : ic_txdr;
-  assign enable   = receive_en ? rxfifo_wr_en : txfifo_ld_en;
+  assign data_in  = rx_data_en ? rx_byte : ic_txdr;
+  assign enable   = rx_data_en ? rxfifo_wr_en : txfifo_ld_en;
   assign init_n   = receive_en ? ~rx_pre_en : ~pre_en;
   assign crc_in   = crc_tx_out;
   assign drain    = 1'b0;
@@ -108,7 +107,11 @@ module apb_ucpd_core (
     .transmit_en     (transmit_en     ),
     .bmc_en          (bmc_en          ),
     .wait_en         (wait_en         ),
+    .rx_wait_en      (rx_wait_en      ),
+    .tx_hrst         (tx_hrst         ),
     .transwin        (transwin        ),
+    .ic_cc_in        (ic_cc_in        ),
+    .ic_cc_out       (ic_cc_out       ),
     .ifrgap          (ifrgap          ),
     .psc_usbpdclk    (psc_usbpdclk    ),
     .hbitclkdiv      (hbitclkdiv      ),
@@ -137,7 +140,7 @@ module apb_ucpd_core (
     .phy_rx_en    (phy_rx_en    ),
     .eop_ok       (eop_ok       ),
     .bmc_en       (bmc_en       ),
-    .dec_rxbit_en (dec_rxbit_en ),
+    .rx_wait_en   (rx_wait_en   ),
     .tx_bit       (tx_bit       ),
     .decode_bmc   (decode_bmc   ),
     .ic_cc_out    (ic_cc_out    ),
@@ -145,6 +148,7 @@ module apb_ucpd_core (
     .rx_bit_sample(rx_bit_sample),
     .rx_pre_cmplt (rx_pre_cmplt ),
     .rx_bit5_cmplt(rx_bit5_cmplt),
+    .rx_wait_cmplt(rx_wait_cmplt),
     .receive_en   (receive_en   )
   );
 
@@ -217,7 +221,6 @@ module apb_ucpd_core (
     .rxdr_rd       (rxdr_rd       ),
     .decode_bmc    (decode_bmc    ),
     .crc_ok        (crc_ok        ),
-    .dec_rxbit_en  (dec_rxbit_en  ),
     .rx_ordset_en  (rx_ordset_en  ),
     .rx_sop_cmplt  (rx_sop_cmplt  ),
     .rx_status     (rx_status     ),
@@ -248,6 +251,7 @@ module apb_ucpd_core (
     .ifrgap_en       (ifrgap_en       ),
     .rx_pre_cmplt    (rx_pre_cmplt    ),
     .rx_sop_cmplt    (rx_sop_cmplt    ),
+    .rx_wait_cmplt   (rx_wait_cmplt   ),
     .hrst_vld        (hrst_vld        ),
     .crst_vld        (crst_vld        ),
     .rx_ordset_vld   (rx_ordset_vld   ),
@@ -267,12 +271,12 @@ module apb_ucpd_core (
     .tx_hrst_disc    (tx_hrst_disc    ),
     .txfifo_ld_en    (txfifo_ld_en    ),
     .cc_oen          (cc_oen          ),
-    .dec_rxbit_en    (dec_rxbit_en    ),
     .txdr_req        (txdr_req        ),
     .rx_idle_en      (rx_idle_en      ),
     .rx_pre_en       (rx_pre_en       ),
     .rx_sop_en       (rx_sop_en       ),
     .rx_data_en      (rx_data_en      ),
+    .rx_wait_en      (rx_wait_en      ),
     .pre_en          (pre_en          ),
     .sop_en          (sop_en          ),
     .data_en         (data_en         ),

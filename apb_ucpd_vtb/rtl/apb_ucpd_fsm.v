@@ -28,6 +28,7 @@ module apb_ucpd_fsm (
   input        ifrgap_en       ,
   input        rx_pre_cmplt    ,
   input        rx_sop_cmplt    ,
+  input        rx_wait_cmplt   ,
   input        hrst_vld        ,
   input        crst_vld        ,
   input        rx_ordset_vld   ,
@@ -47,12 +48,12 @@ module apb_ucpd_fsm (
   output       tx_hrst_disc    ,
   output       txfifo_ld_en    ,
   output       cc_oen          ,
-  output       dec_rxbit_en    ,
   output       txdr_req        ,
   output       rx_idle_en      ,
   output       rx_pre_en       ,
   output       rx_sop_en       ,
   output       rx_data_en      ,
+  output       rx_wait_en      ,
   output       pre_en          ,
   output       sop_en          ,
   output       data_en         ,
@@ -77,10 +78,11 @@ module apb_ucpd_fsm (
   /*------------------------------------------------------------------------------
   --  state variables for pd rx main FSM
   ------------------------------------------------------------------------------*/
-  localparam RX_IDLE = 2'h0;
-  localparam RX_PRE  = 2'h1;
-  localparam RX_SOP  = 2'h2;
-  localparam RX_DATA = 2'h3;
+  localparam RX_IDLE = 3'h0;
+  localparam RX_PRE  = 3'h1;
+  localparam RX_SOP  = 3'h2;
+  localparam RX_DATA = 3'h3;
+  localparam RX_WAIT = 3'h4;
 
   // ----------------------------------------------------------
   // -- local registers and wires
@@ -88,8 +90,8 @@ module apb_ucpd_fsm (
   //registers
   reg [ 2:0] tx_nxt_state      ;
   reg [ 2:0] tx_cur_state      ;
-  reg [ 1:0] rx_nxt_state      ;
-  reg [ 1:0] rx_cur_state      ;
+  reg [ 2:0] rx_nxt_state      ;
+  reg [ 2:0] rx_cur_state      ;
   reg [ 3:0] one_data_txbit_cnt;
   reg [ 9:0] txbyte_cnt        ;
   reg [15:0] txbit_cnt         ;
@@ -121,6 +123,7 @@ module apb_ucpd_fsm (
   assign rx_sop_en  = (rx_cur_state == RX_SOP);
   assign rx_data_en = (rx_cur_state == RX_DATA);
   assign rx_idle_en = (rx_cur_state == RX_IDLE);
+  assign rx_wait_en = (rx_cur_state == RX_WAIT);
 
   assign tx_und    = tx_status[6];
   assign hrst_sent = tx_status[5];
@@ -145,12 +148,11 @@ module apb_ucpd_fsm (
   assign trans_cmplt      = tx_pre_cmplt | tx_sop_cmplt | tx_data_cmplt | tx_crc_cmplt | tx_eop_cmplt;
   assign bmc_en           = pre_en| sop_en| data_en | crc_en | eop_en | wait_en;
   assign enc_txbit_en     = sop_en | data_en | crc_en | eop_en;
-  assign dec_rxbit_en     = rx_sop_en | rx_data_en;
 
-  assign ms_tick_nxt   = (ms_counter == 999);
-  assign us_tick_nxt   = (us_counter == 15);
-  assign ms_tick_100   = (ms_det_counter == 100);
-  assign rx_timeout = receive_en & dec_rxbit_en & ms_tick_100;
+  assign ms_tick_nxt = (ms_counter == 999);
+  assign us_tick_nxt = (us_counter == 15);
+  assign ms_tick_100 = (ms_det_counter == 100);
+  assign rx_timeout  = receive_en & (rx_sop_en | rx_data_en) & ms_tick_100;
   // ----------------------------------------------------------
   // -- This combinational process calculates FSM the next state
   // -- and generate the outputs in ic_clk domain for tx data
@@ -328,7 +330,7 @@ module apb_ucpd_fsm (
       case (rx_cur_state)
         RX_IDLE :
           begin
-            if(receive_en)
+            if(ucpden & receive_en)
               rx_nxt_state = RX_PRE;
             else
               rx_nxt_state = RX_IDLE;
@@ -349,7 +351,7 @@ module apb_ucpd_fsm (
         RX_SOP :
           begin
             if(eop_ok)
-              rx_nxt_state = RX_IDLE;
+              rx_nxt_state = RX_WAIT;
             else if(rx_sop_cmplt)
               rx_nxt_state = RX_DATA;
             else
@@ -359,9 +361,17 @@ module apb_ucpd_fsm (
         RX_DATA :
           begin
             if(eop_ok | hrst_vld | crst_vld | rx_timeout) //| ~rx_ordset_vld)
-              rx_nxt_state = RX_IDLE;
+              rx_nxt_state = RX_WAIT;
             else
               rx_nxt_state = RX_DATA;
+          end
+
+        RX_WAIT :
+          begin
+            if(ifrgap_en | rx_wait_cmplt)
+              rx_nxt_state = RX_IDLE;
+            else
+              rx_nxt_state = RX_WAIT;
           end
 
         default : ;

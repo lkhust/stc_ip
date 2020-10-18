@@ -13,10 +13,10 @@ module apb_ucpd_bmc_filter (
   input            rx_pre_en    ,
   input            rx_sop_en    ,
   input            rx_data_en   ,
+  input            rx_wait_en   ,
   input            phy_rx_en    ,
   input            eop_ok       ,
   input            bmc_en       ,
-  input            dec_rxbit_en ,
   input            tx_bit       ,
   output reg       decode_bmc   , // decode input cc bmc
   output           ic_cc_out    ,
@@ -24,6 +24,7 @@ module apb_ucpd_bmc_filter (
   output           rx_bit_sample,
   output           rx_pre_cmplt ,
   output           rx_bit5_cmplt,
+  output           rx_wait_cmplt,
   output reg       receive_en
 );
   // `include "parameter_def.v"
@@ -58,10 +59,11 @@ module apb_ucpd_bmc_filter (
   reg        cc_in_vld       ;
   reg [10:0] UI_H_cnt        ;
   reg [10:0] UI_L_cnt        ;
+  reg [10:0] wait_cc_h_cnt   ;
   reg        first_2bit_end  ;
-  reg        cc_in_sync_d1   ;
-  reg        cc_in_sync_d2   ;
-  reg        cc_in_sync_d3   ;
+  reg [ 1:0] training_en_r   ;
+  reg [ 1:0] rx_pre_type     ;
+  reg        training_dis    ;
 
   //wires
   wire cc_in_edg     ;
@@ -75,11 +77,13 @@ module apb_ucpd_bmc_filter (
   wire cc_data_int   ;
   wire ic_cc_in_sync ;
 
-  assign rx_pre_cmplt  = rx_pre_en && (pre_rxbit_cnt == `RX_PRE_EDG);
-  // assign rx_bit_edg_vld = rx_bit_edg & ((rx_hbit_cnt > rx_pre_hbit_time>>1) |
-  //                                      (rx_lbit_cnt > rx_pre_lbit_time>>1));
 
-  assign rx_bit_cmplt  = rx_bit_sample; //(rx_hbit_cmplt | rx_lbit_cmplt | rx_bit_edg_vld);
+  assign dec_rxbit_en  = rx_sop_en | rx_data_en;
+  assign rx_wait_cmplt = (wait_cc_h_cnt == UI_ave);
+
+  assign rx_pre_cmplt  = rx_pre_en && (pre_rxbit_cnt == `RX_PRE_EDG);
+
+  assign rx_bit_cmplt  = rx_bit_sample;
 
   assign rx_bit_sample = rx_hbit_sample | rx_lbit_sample;
 
@@ -93,7 +97,8 @@ module apb_ucpd_bmc_filter (
 
   assign rx_bit5_cmplt = rx_bit_cmplt && (rxbit_cnt == `RX_BIT5_NUM);
   assign rx_cc_in_bit = training_en & (cc_in_edg_cnt == 3);
-  // assign decode_bmc   = rx_bmc;
+  assign training_en_falledg = training_en_r[1] & ~training_en_r[0]; // falling edge
+
   assign ic_cc_out    = tx_bmc;
   assign rxfilt_2n3   = rxfilte[1];
   assign rxfilt_dis   = rxfilte[0];
@@ -119,19 +124,6 @@ module apb_ucpd_bmc_filter (
     .data_s  (ic_cc_in     ),
     .data_d  (ic_cc_in_sync)
   );
-  // always @(posedge ucpd_clk or negedge ic_rst_n)
-  //   begin : cc_in_sync_dly_proc
-  //     if(ic_rst_n == 1'b0) begin
-  //       cc_in_sync_d1 <= 1'b0;
-  //       cc_in_sync_d2 <= 1'b0;
-  //       cc_in_sync_d3 <= 1'b0;
-  //     end
-  //     else begin
-  //       cc_in_sync_d1 <= ic_cc_in;
-  //       cc_in_sync_d2 <= cc_in_sync_d1;
-  //       cc_in_sync_d3 <= cc_in_sync_d2;
-  //     end
-  //   end
 
   /*------------------------------------------------------------------------------
   --  generator Biphase Mark Coding (BMC) Signaling
@@ -170,7 +162,7 @@ module apb_ucpd_bmc_filter (
         cc_int <= cc_int_nxt; // for generate edg
     end
 
-  assign cc_in_edg = cc_int ^ cc_int_nxt;
+  assign cc_in_edg = (cc_int ^ cc_int_nxt);
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin : cc_in_vld_proc
@@ -178,10 +170,23 @@ module apb_ucpd_bmc_filter (
         cc_in_vld <= 1'b0;
       else if(rx_sop_en | rx_data_en)
         cc_in_vld <= 1'b0;
-      else if(cc_in_edg & phy_rx_en)
+      else if((rx_idle_en | rx_pre_en) & cc_in_edg & phy_rx_en)
         cc_in_vld <= 1'b1;
-      else if(~phy_rx_en)
-        cc_in_vld <= 1'b0;
+    end
+
+  /*------------------------------------------------------------------------------
+  --  detect rx wait 3bits recive complete
+  ------------------------------------------------------------------------------*/
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin : wait_cc_h_cnt_proc
+      if(~ic_rst_n)
+        wait_cc_h_cnt <= 11'b0;
+      else if(rx_wait_cmplt)
+        wait_cc_h_cnt <= 11'b0;
+      else if(rx_wait_en & cc_int)
+        wait_cc_h_cnt <= wait_cc_h_cnt+1;
+      else
+        wait_cc_h_cnt <= 11'b0;
     end
 
   // begin preamble use 2 bit to count edge, get 3 counter
@@ -189,30 +194,20 @@ module apb_ucpd_bmc_filter (
     begin : UI_H_cnt_proc
       if(~ic_rst_n)
         UI_H_cnt <= 11'b0;
-      else if(dec_rxbit_en) begin
+      else if(cc_in_vld & cc_int)
+        UI_H_cnt <= UI_H_cnt+1;
+      else
         UI_H_cnt <= 11'b0;
-      end
-      else if(cc_in_vld) begin
-        if(cc_int)
-          UI_H_cnt <= UI_H_cnt+1;
-        else
-          UI_H_cnt <= 11'b0;
-      end
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin : UI_L_cnt_proc
       if(~ic_rst_n)
         UI_L_cnt <= 11'b0;
-      else if(dec_rxbit_en) begin
+      else if(cc_in_vld & (~cc_int))
+        UI_L_cnt <= UI_L_cnt+1;
+      else
         UI_L_cnt <= 11'b0;
-      end
-      else if(cc_in_vld) begin
-        if(~cc_int)
-          UI_L_cnt <= UI_L_cnt+1;
-        else
-          UI_L_cnt <= 11'b0;
-      end
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
@@ -238,11 +233,6 @@ module apb_ucpd_bmc_filter (
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin : UI_cntA_B_C_proc
       if(~ic_rst_n) begin
-        UI_cntA <= 11'b0;
-        UI_cntB <= 11'b0;
-        UI_cntC <= 11'b0;
-      end
-      else if(dec_rxbit_en) begin
         UI_cntA <= 11'b0;
         UI_cntB <= 11'b0;
         UI_cntC <= 11'b0;
@@ -288,10 +278,16 @@ module apb_ucpd_bmc_filter (
     begin : UI_ave_proc
       if(~ic_rst_n)
         UI_ave <= 11'b0;
-      else if(training_en && ave_cnt == 4'd15)
-        UI_ave <= UI_sum*3>>6; //sum/16*3/4
-      else if(~receive_en)
+      else if(rx_idle_en)
         UI_ave <= 11'b0;
+      else if(training_en) begin
+        // if(ave_cnt == 4'd0)
+        //   UI_ave <= th_1UI*3>>2;
+        if(ave_cnt == 4'd15)
+          UI_ave <= UI_sum*3>>6; //sum/16*3/4
+        // else
+        //   UI_ave <= th_1UI*3>>2;
+      end
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
@@ -326,9 +322,6 @@ module apb_ucpd_bmc_filter (
   //   );
 
   // according to sum ,to get 1UI for a bit duty at preamble, 1UI = sum/2*3/4
-  reg [1:0] training_en_r;
-  reg       training_dis ;
-  assign training_en_jitter = training_en_r[0]^training_en;
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin : training_en_r_proc
       if(ic_rst_n == 1'b0)
@@ -337,33 +330,32 @@ module apb_ucpd_bmc_filter (
         training_en_r <= {training_en_r[0], training_en};
     end
 
-  always @(posedge ucpd_clk or negedge ic_rst_n)
-    begin : training_dis_proc
-      if(ic_rst_n == 1'b0)
-        training_dis <= 1'b0;
-      else if(rx_idle_en)
-        training_dis <= 1'b0;
-      else if(training_en_jitter & rx_pre_en)
-        training_dis <= 1'b1;
-    end
-
   // according to sum ,to get 1UI for a bit duty at preamble, 1UI = sum/2*3/4
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin : training_en_proc
       if(~ic_rst_n) begin
+        rx_pre_type <= 2'b00;
         training_en <= 1'b0;
         th_1UI      <= 11'b0;
       end
-      else if(training_dis | dec_rxbit_en) begin
+      else if(dec_rxbit_en) begin
+        rx_pre_type <= 2'b00;
         training_en <= 1'b0;
         th_1UI      <= 11'b0;
       end
       else if(first_2bit_end) begin
-        if(((UI_cntA < UI_cntC) && (UI_cntB < UI_cntC)) || ((UI_cntA > UI_cntB) && (UI_cntA > UI_cntC))) begin
+        if((UI_cntA < UI_cntC) && (UI_cntB < UI_cntC)) begin
+          rx_pre_type <= 2'b01;
+          training_en <= 1'b1;
+          th_1UI      <= (UI_cntA+UI_cntB+UI_cntC)>>1; // (a+b+c)/2
+        end
+        else if((UI_cntA > UI_cntB) && (UI_cntA > UI_cntC)) begin
+          rx_pre_type <= 2'b11;
           training_en <= 1'b1;
           th_1UI      <= (UI_cntA+UI_cntB+UI_cntC)>>1; // (a+b+c)/2
         end
         else if((UI_cntB > UI_cntC) && (UI_cntB > UI_cntA)) begin // b>c,b>a, standing for lost begin 1
+          rx_pre_type <= 2'b00;
           training_en <= 1'b0;
           th_1UI      <= 11'b0;
         end
@@ -378,7 +370,7 @@ module apb_ucpd_bmc_filter (
       if(~ic_rst_n) begin
         rx_bmc <= 1'b0;
       end
-      else if(eop_ok | rx_idle_en)
+      else if(rx_idle_en)
         rx_bmc <= 1'b0;
       else if(cc_in_edg) begin
         if(data_cnt >= UI_ave)
@@ -397,11 +389,7 @@ module apb_ucpd_bmc_filter (
         data_cnt   <= 11'b0;
         data1_flag <= 1'b0;
       end
-      else if(eop_ok | rx_idle_en) begin
-        data_cnt   <= 11'b0;
-        data1_flag <= 1'b0;
-      end
-      else if(~receive_en) begin
+      else if(rx_idle_en) begin
         data_cnt   <= 11'b0;
         data1_flag <= 1'b0;
       end
@@ -444,13 +432,23 @@ module apb_ucpd_bmc_filter (
     end
 
   always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin : training_dis_proc
+      if(~ic_rst_n)
+        training_dis <= 1'b0;
+      else if(rx_idle_en)
+        training_dis <= 1'b0;
+      else if(training_en_falledg)
+        training_dis <= 1'b1;
+    end
+
+  always @(posedge ucpd_clk or negedge ic_rst_n)
     begin : receive_en_proc
       if(~ic_rst_n)
         receive_en <= 1'b0;
+      else if(training_dis | dec_rxbit_en)
+        receive_en <= 1'b0;
       else if(training_en & phy_rx_en)
         receive_en <= 1'b1;
-      else if(receive_en & (eop_ok | hrst_vld | crst_vld | rx_idle_en))
-        receive_en <= 1'b0;
     end
 
   /*------------------------------------------------------------------------------
