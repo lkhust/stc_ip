@@ -125,5 +125,5 @@ module apb_ucpd_jitter (
         jitter_out <= jitter_in_r[0];
     end
 
-endmodule
+endmodule // apb_ucpd_jitter
 

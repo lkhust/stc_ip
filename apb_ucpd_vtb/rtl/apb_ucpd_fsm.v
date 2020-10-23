@@ -11,7 +11,6 @@
 -- See CVS log
 -- =====================================================================
 */
-
 module apb_ucpd_fsm (
   input        ic_clk          , // usbpd clock(HSI16)
   input        ucpd_clk        ,
@@ -21,11 +20,13 @@ module apb_ucpd_fsm (
   input        transmit_en     , // Command to send a Tx packet
   input        receive_en      ,
   input        eop_ok          ,
+  input        rx_data_err     ,
   input        bit_clk_red     ,
   input  [9:0] tx_paysize      , // tx Payload size in bytes, include head and TX_DATA
   input  [6:0] tx_status       ,
   input        transwin_en     ,
   input        ifrgap_en       ,
+  input        cc_in_edg       ,
   input        rx_pre_cmplt    ,
   input        rx_sop_cmplt    ,
   input        rx_wait_cmplt   ,
@@ -152,7 +153,7 @@ module apb_ucpd_fsm (
   assign ms_tick_nxt = (ms_counter == 999);
   assign us_tick_nxt = (us_counter == 15);
   assign ms_tick_100 = (ms_det_counter == 100);
-  assign rx_timeout  = receive_en & (rx_sop_en | rx_data_en) & ms_tick_100;
+  assign rx_timeout  = (rx_sop_en | rx_data_en) & ms_tick_100;
   // ----------------------------------------------------------
   // -- This combinational process calculates FSM the next state
   // -- and generate the outputs in ic_clk domain for tx data
@@ -338,7 +339,9 @@ module apb_ucpd_fsm (
 
         RX_PRE :
           begin
-            if(ucpden & receive_en) begin
+           if( rx_timeout )
+              rx_nxt_state = RX_WAIT;
+           else  if(ucpden & receive_en) begin
               if(rx_pre_cmplt)
                 rx_nxt_state = RX_SOP;
               else
@@ -350,7 +353,7 @@ module apb_ucpd_fsm (
 
         RX_SOP :
           begin
-            if(eop_ok)
+            if(eop_ok| rx_data_err | rx_timeout )
               rx_nxt_state = RX_WAIT;
             else if(rx_sop_cmplt)
               rx_nxt_state = RX_DATA;
@@ -360,7 +363,7 @@ module apb_ucpd_fsm (
 
         RX_DATA :
           begin
-            if(eop_ok | hrst_vld | crst_vld | rx_timeout) //| ~rx_ordset_vld)
+            if(eop_ok | hrst_vld | crst_vld | rx_timeout | rx_data_err) //| ~rx_ordset_vld)
               rx_nxt_state = RX_WAIT;
             else
               rx_nxt_state = RX_DATA;
@@ -424,10 +427,11 @@ module apb_ucpd_fsm (
     begin : ms_det_counter_proc
       if(ic_rst_n == 1'b0)
         ms_det_counter <= 8'd0;
+      else if(cc_in_edg)
+        ms_det_counter <= 8'd0;
       else if(ms_tick)
         ms_det_counter <= ms_det_counter + 1;
     end
 
-endmodule
-
+endmodule // apb_ucpd_fsm
 

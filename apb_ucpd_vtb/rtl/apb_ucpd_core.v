@@ -49,7 +49,6 @@ module apb_ucpd_core (
   wire [31:0] crc_tx_out      ;
   wire        tx_hrst_flag    ;
   wire        tx_crst_flag    ;
-  wire        rx_bit_sample   ;
   wire        pre_en          ;
   wire        bmc_en          ;
   wire        sop_en          ;
@@ -96,7 +95,6 @@ module apb_ucpd_core (
   assign init_n   = receive_en ? ~rx_pre_en : ~pre_en;
   assign crc_in   = crc_tx_out;
   assign drain    = 1'b0;
-  assign ld_crc_n = 1'b1;
   assign rx_data  = rx_byte_no_crc;
 
   apb_ucpd_clk_gen u_apb_ucpd_clk_gen (
@@ -129,6 +127,7 @@ module apb_ucpd_core (
     .ic_cc_in     (ic_cc_in     ),
     .bit_clk_red  (bit_clk_red  ),
     .hbit_clk_red (hbit_clk_red ),
+    .cc_in_edg    (cc_in_edg    ),
     .ucpd_clk     (ucpd_clk     ),
     .rxfilte      (rxfilte      ),
     .hrst_vld     (hrst_vld     ),
@@ -145,7 +144,6 @@ module apb_ucpd_core (
     .decode_bmc   (decode_bmc   ),
     .ic_cc_out    (ic_cc_out    ),
     .rx_bit_cmplt (rx_bit_cmplt ),
-    .rx_bit_sample(rx_bit_sample),
     .rx_pre_cmplt (rx_pre_cmplt ),
     .rx_bit5_cmplt(rx_bit5_cmplt),
     .rx_wait_cmplt(rx_wait_cmplt),
@@ -158,9 +156,7 @@ module apb_ucpd_core (
     .init_n    (init_n    ),
     .enable    (enable    ),
     .drain     (drain     ),
-    .ld_crc_n  (ld_crc_n  ),
     .data_in   (data_in   ),
-    .crc_in    (crc_in    ),
     .draining  (draining  ),
     .drain_done(drain_done),
     .crc_ok    (crc_ok    ),
@@ -213,7 +209,6 @@ module apb_ucpd_core (
     .ic_rst_n      (ic_rst_n      ),
     .rx_bit5_cmplt (rx_bit5_cmplt ),
     .rx_bit_cmplt  (rx_bit_cmplt  ),
-    .rx_bit_sample (rx_bit_sample ),
     .rx_idle_en    (rx_idle_en    ),
     .rx_pre_en     (rx_pre_en     ),
     .rx_sop_en     (rx_sop_en     ),
@@ -231,6 +226,7 @@ module apb_ucpd_core (
     .crst_vld      (crst_vld      ),
     .rx_ordset_vld (rx_ordset_vld ),
     .eop_ok        (eop_ok        ),
+    .rx_data_err   (rx_data_err   ),
     .rx_byte_no_crc(rx_byte_no_crc),
     .rx_byte_to_crc(rx_byte       )
   );
@@ -242,8 +238,10 @@ module apb_ucpd_core (
     .ucpden          (ucpden          ),
     .tx_hrst         (tx_hrst         ),
     .transmit_en     (transmit_en     ),
+    .cc_in_edg       (cc_in_edg       ),
     .receive_en      (receive_en      ),
     .eop_ok          (eop_ok          ),
+    .rx_data_err     (rx_data_err     ),
     .bit_clk_red     (bit_clk_red     ),
     .tx_paysize      (tx_paysize      ),
     .tx_status       (tx_status       ),
@@ -286,5 +284,5 @@ module apb_ucpd_core (
     .bist_en         (bist_en         )
   );
 
-endmodule
+endmodule // apb_ucpd_core
 

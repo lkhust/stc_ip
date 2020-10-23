@@ -372,5 +372,5 @@ module apb_ucpd_data_tx (
     end
   endfunction
 
-endmodule
+endmodule // apb_ucpd_data_tx
 

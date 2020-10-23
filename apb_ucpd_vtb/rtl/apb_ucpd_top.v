@@ -177,5 +177,5 @@ module apb_ucpd_top (
     .cc_oen      (cc_oen      )
   );
 
-endmodule
+endmodule // apb_ucpd_top
 

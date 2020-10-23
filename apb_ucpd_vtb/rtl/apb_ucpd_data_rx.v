@@ -1,4 +1,3 @@
-
 /*
 ------------------------------------------------------------------------
 --
@@ -19,14 +18,13 @@ module apb_ucpd_data_rx (
   input            ic_rst_n      , // asynchronous reset, active low
   input            rx_bit5_cmplt ,
   input            rx_bit_cmplt  ,
-  input            rx_bit_sample ,
   input            rx_idle_en    ,
   input            rx_pre_en     ,
   input            rx_sop_en     ,
   input            rx_data_en    ,
   input            rxdr_rd       ,
   input            decode_bmc    ,
-  input            crc_ok        ,  
+  input            crc_ok        ,
   input      [8:0] rx_ordset_en  ,
   output           rx_sop_cmplt  ,
   output     [5:0] rx_status     ,
@@ -37,6 +35,7 @@ module apb_ucpd_data_rx (
   output reg       crst_vld      ,
   output           rx_ordset_vld ,
   output reg       eop_ok        ,
+  output reg       rx_data_err   ,
   output     [7:0] rx_byte_no_crc,
   output     [7:0] rx_byte_to_crc
 );
@@ -88,6 +87,7 @@ module apb_ucpd_data_rx (
   reg        rx_1byte_cmplt_red_d;
   reg        rx_bit5_cmplt_d     ;
   reg        rx_sop_en_d         ;
+  reg        rx_data_en_d        ;
   reg [ 9:0] rx_byte_cnt         ;
 
   // wire
@@ -99,22 +99,22 @@ module apb_ucpd_data_rx (
   wire       sop_ex2_vld       ;
   wire [7:0] rx_byte_nxt       ;
   wire [3:0] sop_num_ok_nxt    ;
-  wire [8:0] rx_ordset_vld_ord ;
+  wire [7:0] rx_ordset_vld_ord ;
   wire [9:0] rx_byte_no_crc_cnt;
 
   // todo
   assign sop_ex1_vld = 1'b0;
   assign sop_ex2_vld = 1'b0;
- 
+
   assign dec_rxbit_en       = rx_sop_en | rx_data_en;
-  assign rxfifo_wr_data     = rx_1byte_cmplt_red_d & rx_byte_vld;
+  assign rxfifo_wr_data     = rxfifo_wr_en & rx_byte_vld;
   assign rx_paysize         = rx_byte_no_crc_cnt;
   assign rx_byte_to_crc     = rx_byte;
   assign rx_byte_no_crc_cnt = rx_byte_vld ? rx_byte_cnt-4 : 10'd0;
-  assign rx_byte_no_crc     = rx_byte_r4;
+  assign rx_byte_no_crc     = rx_byte_vld ? rx_byte_r4 : 8'd0;
   assign rx_ovrflow         = rxfifo_full & rxfifo_wr_data & rx_data_en;
-  assign rx_err             = eop_ok & ~crc_ok;
-  assign rx_msg_end         = eop_ok;
+  assign rx_err             = rx_idle_en & eop_ok & ~crc_ok;
+  assign rx_msg_end         = rx_idle_en & eop_ok;
   assign rx_hrst_det        = hrst_vld;
   assign rx_ordset_vld      = sop0_vld | sop1_vld | sop2_vld | sop1_deg_vld | sop2_deg_vld | crst_vld;
   assign rx_full            = rxfifo_full & rx_data_en;
@@ -125,17 +125,12 @@ module apb_ucpd_data_rx (
   assign rx_1byte_cmplt_red = ~rx_1byte_cmplt_d & rx_1byte_cmplt;
   assign rx_byte_nxt        = ~rx_5bits_cnt[0] ? rx_data : rx_byte;
   assign sop_num_ok_nxt     = {sop_1st_ok,sop_2st_ok,sop_3st_ok,sop_4st_ok};
-  assign rx_ordset_vld_ord  = {sop_ex2_vld,sop_ex1_vld,sop2_deg_vld,sop1_deg_vld,crst_vld,1'b0,sop2_vld,sop1_vld,sop0_vld};
+  assign rx_ordset_vld_ord  = {sop_ex2_vld,sop_ex1_vld,crst_vld,sop2_deg_vld,
+                               sop1_deg_vld,sop2_vld,sop1_vld,sop0_vld};
 
   always @(posedge ic_clk or negedge ic_rst_n)
     begin : rx_byte_dly_proc
       if(~ic_rst_n) begin
-        rx_byte_r1 <= 8'b0;
-        rx_byte_r2 <= 8'b0;
-        rx_byte_r3 <= 8'b0;
-        rx_byte_r4 <= 8'b0;
-      end
-      else if(rx_idle_en) begin
         rx_byte_r1 <= 8'b0;
         rx_byte_r2 <= 8'b0;
         rx_byte_r3 <= 8'b0;
@@ -179,6 +174,14 @@ module apb_ucpd_data_rx (
         rx_sop_en_d <= 1'b0;
       else
         rx_sop_en_d <= rx_sop_en;
+    end
+
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin : rx_data_en_d_proc
+      if(~ic_rst_n)
+        rx_data_en_d <= 1'b0;
+      else
+        rx_data_en_d <= rx_data_en;
     end
 
   /*------------------------------------------------------------------------------
@@ -233,16 +236,17 @@ module apb_ucpd_data_rx (
   --  The header is considered to be part of the payload, but CRC is not counted
   --  rx_data send to SW as rxdr value
   ------------------------------------------------------------------------------*/
-  always @(*)
-    begin : rx_data_comb
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin : rx_data_proc
       if(~ic_rst_n)
         rx_data = 8'b0;
-      else if(rx_idle_en)
-        rx_data = 8'b0;
-      else if(rx_5bits_cnt[0] & rx_data_en)
-        rx_data[3:0] = decode_4b;
-      else
-        rx_data[7:4] = decode_4b;
+      else if(rx_data_en)
+        begin
+          if(rx_5bits_cnt[0])
+            rx_data[3:0] = decode_4b;
+          else
+            rx_data[7:4] = decode_4b;
+        end
     end
 
   /*------------------------------------------------------------------------------
@@ -303,7 +307,11 @@ module apb_ucpd_data_rx (
         rx_sop_invld_num <= 3'd0;
         rx_sop_3of4      <= 1'd0;
       end
-      else if(rx_sop_cmplt && rx_data_en) begin
+      else if(rx_pre_en) begin
+        rx_sop_invld_num <= 3'd0;
+        rx_sop_3of4      <= 1'd0;
+      end
+      else if(rx_data_en & rx_bit_cmplt) begin
         case(sop_num_ok_nxt)
           4'b1111 : // 0x0: No K-codes were corrupted
             begin
@@ -330,7 +338,7 @@ module apb_ucpd_data_rx (
               rx_sop_invld_num <= 3'd4;
               rx_sop_3of4      <= 1'd1;
             end
-          default : rx_sop_invld_num <= 3'd7; // Other values: Invalid
+          default : ; // Other values: Invalid
         endcase
       end
     end
@@ -338,24 +346,25 @@ module apb_ucpd_data_rx (
   /*------------------------------------------------------------------------------
   --  when rx_sop_cmplt valid registe RX_ORDSET(RXORDSET[2:0])
   ------------------------------------------------------------------------------*/
-  wire [8:0] rx_ordset_ord;
+  wire [7:0] rx_ordset_ord;
   assign rx_ordset_ord = rx_ordset_vld_ord & rx_ordset_en;
   always @(posedge ucpd_clk or negedge ic_rst_n)
     begin : rx_ordset_det_proc
       if(~ic_rst_n)
+        rx_ordset_det <= 3'd0;
+      else if(rx_pre_en)
         rx_ordset_det <= 3'd0;
       else begin
         case(1'b1)
           rx_ordset_ord[0] : rx_ordset_det <= 3'd0; // 0x0: 0bxxxxxxxx1: SOP detect enabled
           rx_ordset_ord[1] : rx_ordset_det <= 3'd1; // 0x1: 0bxxxxxxx1x: SOP' detect enabled
           rx_ordset_ord[2] : rx_ordset_det <= 3'd2; // 0x2: 0bxxxxxx1xx: SOP'' detect enabled
-          // rx_ordset_ord[3] : rx_ordset_det <= 3'd3; // 0bxxxxx1xxx: Hard Reset detect enabled
-          rx_ordset_ord[4] : rx_ordset_det <= 3'd3; // 0bxxxx1xxxx: Cable Detect reset enabled
-          rx_ordset_ord[5] : rx_ordset_det <= 3'd4; // 0bxxx1xxxxx: SOP'_Debug enabled
-          rx_ordset_ord[6] : rx_ordset_det <= 3'd5; // 0bxx1xxxxxx: SOP''_Debug enabled
-          rx_ordset_ord[7] : rx_ordset_det <= 3'd6; // 0bx1xxxxxxx: SOP extension#1 enabled
-          rx_ordset_ord[8] : rx_ordset_det <= 3'd7; // 0b1xxxxxxxx: SOP extension#2 enabled
-          default          : rx_ordset_det <= 3'd0;
+          rx_ordset_ord[3] : rx_ordset_det <= 3'd3; // 0x3: 0bxxxxx1xxx: SOP'_Debug enabled
+          rx_ordset_ord[4] : rx_ordset_det <= 3'd4; // 0x4: 0bxxxx1xxxx: SOP'_Debug enabled
+          rx_ordset_ord[5] : rx_ordset_det <= 3'd5; // 0x5: 0bxxx1xxxxx: Cable Detect reset enabled
+          rx_ordset_ord[6] : rx_ordset_det <= 3'd6; // 0x6: 0bx1xxxxxxx: SOP extension#1 enabled
+          rx_ordset_ord[7] : rx_ordset_det <= 3'd7; // 0x7: 0b1xxxxxxxx: SOP extension#2 enabled
+          default          : ;
         endcase
       end
     end
@@ -363,7 +372,6 @@ module apb_ucpd_data_rx (
   /*------------------------------------------------------------------------------
   --   when sop received complete, we need 4 sop k code to check it
   ------------------------------------------------------------------------------*/
-
   always @ (posedge ucpd_clk or negedge ic_rst_n)
     begin : sop_k_code_proc
       if(~ic_rst_n) begin
@@ -400,7 +408,6 @@ module apb_ucpd_data_rx (
         sop_4st_ok <= 1'b0;
         eop_ok     <= 1'b0;
       end
-
       else if(rx_idle_en) begin
         sop_1st_ok <= 1'b0;
         sop_2st_ok <= 1'b0;
@@ -408,9 +415,7 @@ module apb_ucpd_data_rx (
         sop_4st_ok <= 1'b0;
         eop_ok     <= 1'b0;
       end
-
       else if(rx_sop_en | rx_data_en) begin
-
         if(rx_5bits == `EOP)
           eop_ok <= 1'b1;
         else
@@ -455,6 +460,20 @@ module apb_ucpd_data_rx (
               eop_ok     <= 1'b0;
             end
         endcase
+      end
+    end
+
+  always @(posedge ucpd_clk or negedge ic_rst_n)
+    begin : rx_data_err_proc
+      if(~ic_rst_n)
+        rx_data_err <= 1'b0;
+      else if(rx_idle_en)
+        rx_data_err <= 1'b0;
+      else if(rx_data_en_d) begin
+        if(rx_5bits == 5'd0)
+          rx_data_err <= 1'b1;
+        else
+          rx_data_err <= 1'b0;
       end
     end
 
@@ -541,17 +560,9 @@ module apb_ucpd_data_rx (
         bmc_rx_shift <= 5'b0;
       else if(rx_idle_en)
         bmc_rx_shift <= 5'b0;
-      else if(dec_rxbit_en & rx_bit_sample)
+      else if(dec_rxbit_en & rx_bit_cmplt)
         bmc_rx_shift <= {decode_bmc, bmc_rx_shift[4:1]};
     end
-
-  // always @(posedge ucpd_clk or negedge ic_rst_n)
-  //   begin : rx_sop_en_d_proc
-  //     if(~ic_rst_n)
-  //       rx_sop_en_d <= 1'b0;
-  //     else
-  //       rx_sop_en_d <= rx_sop_en;
-  //   end
 
   /*------------------------------------------------------------------------------
   --  count sop, data, crc, `EOP half byte(5bits) recive number
@@ -593,5 +604,4 @@ module apb_ucpd_data_rx (
       endcase
     end
 
-endmodule
-
+endmodule // apb_ucpd_data_rx

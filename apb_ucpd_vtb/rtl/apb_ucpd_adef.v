@@ -2,7 +2,7 @@
   `define __APB_UCPD_DEF_H__
 
   `define TX_PREAMBLE    32
-  `define RX_PRE_EDG     97
+  `define RX_PRE_EDG     51
   `define PRE_BIT_NUM    63
   `define SOP_BIT_NUM    19
   `define CRC_BIT_NUM    39

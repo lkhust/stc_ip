@@ -1,4 +1,3 @@
-
 // -------------------------------------------------------------------
 // -------------------------------------------------------------------
 // File :                       apb_ucpd_if.v
@@ -10,7 +9,6 @@
 //            All registers are on 32-bit boundaries
 //
 // -------------------------------------------------------------------
-
 
 `define IC_CFG1_OS        8'h00
 `define IC_CFG2_OS        8'h04
@@ -723,6 +721,6 @@ module apb_ucpd_if (
       endcase
     end
 
-endmodule
+endmodule // apb_ucpd_if
 
 

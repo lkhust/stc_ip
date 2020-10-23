@@ -43,7 +43,6 @@ module apb_ucpd_clk_gen (
   //registers
   reg [6:0] pre_scaler_cnt;
   reg [6:0] pre_scaler_div;
-  reg [5:0] hbit_clk_cnt  ;
   reg [4:0] ifrgap_cnt    ;
   reg [4:0] transwin_cnt  ;
   reg       pre_scaler_clk;
@@ -95,7 +94,7 @@ module apb_ucpd_clk_gen (
   // HBITCLKDIV[5:0] = 0x0: Divide by 1 to produce HBITCLK
   assign hbit_clk = (hbitclkdiv == 6'b0) ? ucpd_clk : hbit_clk_out;
   //assign hbit_clk_sync = (transmit_en_d | tx_hrst) ? hbit_clk : 1'b0;
-  assign hbit_clk_sync = hbit_clk;
+  assign hbit_clk_sync = transmit_en ? hbit_clk : 1'b0;
 
   // ----------------------------------------------------------
   // -- Synchronization registers
@@ -236,7 +235,7 @@ module apb_ucpd_clk_gen (
         end
     end
 
-endmodule
+endmodule // apb_ucpd_clk_gen
 
   /*------------------------------------------------------------------------------
   --  The modue use to switch clk without glitch
